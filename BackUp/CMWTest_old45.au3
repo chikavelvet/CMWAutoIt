@@ -20,7 +20,7 @@
 #comments-end
 
 #include <Header.au3>
-;#include <DashboardTest.au3>
+#include <DashboardTest.au3>
 #include <Date.au3>
 #include <IE.au3>
 
@@ -76,20 +76,16 @@ ConsoleWrite($tDateToday & @CRLF & $tDateMinusSeven & @CRLF)
 	TO-DO: confirm/modify to work on all terminal log ins (if necessary)
 
 #comments-end
-Func TerminalOpenLogin($hWnd = "[CLASS:AfxFrameOrView80]")
+Func TerminalOpenLogin()
 	_OpenApp("term")
 
-	ControlFocus($g_wTerminal, "Ready", $hWnd)
-	Send("!es")
-	While Not StringInStr(ClipGet(), "[2J")
-		Send("{Enter}")
-		Sleep(250)
-		Send("!es")
-	WEnd
-
+	ControlFocus($g_wTerminal, "Ready", "[CLASS:AfxFrameOrView80]")
+	Send("{Enter 4}")
+	Sleep(200)
+	TermTextWait($g_wTerminal, "Ready", "[CLASS:AfxFrameOrView80]", "[2J")
 	Send($g_sUserPwd & "{Enter}")
 
-	If TermTextWait($g_wTerminal, "Ready", $hWnd, "Find and Sell") = -1 Then
+	If TermTextWait($g_wTerminal, "Ready", "[CLASS:AfxFrameOrView80]", "Find and Sell") = -1 Then
 		MsgBox(0, "No Find and Sell Found", "Something went wrong.")
 		Exit
 	EndIf
@@ -152,7 +148,6 @@ Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("dash")
 	Local $sCurrentStatus
 
@@ -186,13 +181,12 @@ Func TestDashboard()
 
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
-		Sleep(1000)
 		ControlClick($g_wGadget, "", "TBitBtn2")
 
 		WaitForNewGadget($sCurrentStatus)
-		Sleep(500)
+		Sleep(250)
 		CaptureScreen($g_wMain, "GadgetTest" & ($j + 1), "DashboardTest")
-		Sleep(500)
+		Sleep(250)
 	Next
 	;Exit
 	#EndRegion -- Dashboard Test 1 - Turn on all gadgets -done
@@ -247,7 +241,6 @@ Func TestDashboard()
 
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
-		Sleep(1000)
 		ControlClick($g_wGadget, "", "TBitBtn2")
 
 		WaitForNewGadget($sCurrentStatus)
@@ -421,52 +414,30 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 	ControlSend("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TPageControl1", "^{Tab 2}")
 	Local $fiCurConnectionFile = ControlGetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1")
 	If $fiCurConnectionFile <> $fiConnectionFile Then
-		MsgBox(0, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF, 3)
+		MsgBox(0, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF)
 		ControlSetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1", $fiConnectionFile)
 	EndIf
 	WinClose("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+
 	#Region -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 	CheckTermSettings($g_asNonDefaultLogin[4])
 	TerminalOpenLogin()
 	CaptureScreen($g_wMain, "AlphaComOpened", "TerminalTest")
+	Exit
 	#EndRegion -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 
-	ControlClick($g_wMain, "", "TAdvGlowButton14")
-	WinWait($g_wMessage, "Never ask again", 5)
-	If WinExists($g_wMessage) Then
-		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
-		ControlClick($g_wMessage, "", "TAdvGlowButton1")
-	EndIf
+	#Region -- Terminal Test 2 - verify an open alphacom screen outside of CMW will be focused when opening terminal app in CMW
 
-	#Region -- Terminal Test 2 - verify an open alphacom screen outside of CMW will be focused when opening terminal app in CMW -done
-	Run(@ProgramFilesDir & "\OmniCom\AlphaCom\Alpha.exe")
-	WinWait("AlphaCom")
-	WinActivate($g_wMain)
-	Sleep(5000)
-	ControlClick($g_wMain, "", "TAdvGlowButton12")
-	CaptureScreen("AlphaCom", "AlphaComFocused", "TerminalTest")
-	WinClose("AlphaCom")
-	#EndRegion -- Terminal Test 2 - verify an open alphacom screen outside of CMW will be focused when opening terminal app in CMW -done
+	#EndRegion
 
-	#Region -- Terminal Test 3 - verify that alphacom opens in both of 2 separate CMWs -done
+	#Region -- Terminal Test 3 - verify that alphacom opens in both of 2 separate CMWs
 
-	WinActivate($g_wMain)
-	TerminalOpenLogin()
-	Local $hNdl = ControlGetHandle($g_wTerminal, "", "[CLASS:AfxFrameOrView80]")
-	WinMove($g_wMain, "", 0, 0, @DesktopWidth / 2, @DesktopHeight)
-	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv", Null, False)
-	WinMove("[CLASS:TfrmMain_CMW; INSTANCE:2]", "", @DesktopWidth / 2, 0, @DesktopWidth / 2, @DesktopHeight)
-	WinActivate("[CLASS:TfrmMain_CMW; INSTANCE:2]")
-	TerminalOpenLogin()
-	CaptureScreen($g_wMain, "TwoCMWAlphaComs", "TerminalTest")
-	#EndRegion -- Terminal Test 3 - verify that alphacom opens in both of 2 separate CMWs -done
+	#EndRegion
 
-	WinClose($g_wMain)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+
 	;ConsoleWrite("Found the Find and Sell; No Problemo 2" & @CRLF)
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
@@ -475,6 +446,7 @@ Func TestTerminal()
 		ControlClick($g_wMessage, "", "TAdvGlowButton1")
 	EndIf
 
+
 	Return "Terminal Test Complete"
 EndFunc   ;==>TestTerminal
 
@@ -482,11 +454,7 @@ EndFunc   ;==>TestTerminal
 
 
 #Region --- ORDER TRAKKER TEST FUNCTION ---
-Func TestTrakker()
-	_OpenApp("trak")
-
-	Return "Order Trakker Test Complete"
-EndFunc   ;==>TestTrakker
+;_OpenApp("trak")
 
 
 
@@ -495,8 +463,6 @@ EndFunc   ;==>TestTrakker
 #Region --- IMAGING TEST FUNCTION ---
 
 Func TestImaging()
-	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("image")
 
 	#Region -- Imaging Test 1 - Look up a stock number -done
@@ -702,6 +668,8 @@ Func TestImaging()
 	;_ArrayDisplay($asTerminalScreenArray)
 	;_ArraySearch($asTerminalScreenArray, ""
 
+	;Opt("SendKeyDelay", 500)
+
 	Send("{Down 4}")
 	Send($sPartCode)
 	Send("{Enter}")
@@ -765,9 +733,7 @@ Func TestImaging()
 		Sleep(100)
 	EndIf
 
-	If WinExists("Image Viewer") Then
-		WinClose("Image Viewer")
-	EndIf
+	WinClose("Image Viewer")
 	;Exit
 	Return "Imaging Test Complete"
 EndFunc   ;==>TestImaging
@@ -777,7 +743,6 @@ EndFunc   ;==>TestImaging
 #Region --- REPORTS TEST FUNCTION ---
 
 Func TestReports()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("report")
 	If ProcessExists("cView.exe") Then
 		ProcessClose("cView.exe")
@@ -926,99 +891,21 @@ Func TestReports()
 
 	#EndRegion -- Reports Test 3 - Test a few different reports -done
 
-	ControlClick($g_wMain, "", "TAdvGlowButton15")
-	WinWait($g_wMessage, "Never ask again", 5)
-	If WinExists($g_wMessage) Then
-		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
-		ControlClick($g_wMessage, "", "TAdvGlowButton1")
-		Sleep(100)
-	EndIf
-
-	Return "Reports Test Complete"
-
 EndFunc   ;==>TestReports
 
 
 
 #EndRegion --- REPORTS TEST FUNCTION ---
 
-#Region --- EBAY TEST FUNCTION ---
-
-Func TestEbay()
-	_OpenApp("ebay")
-
-	Local $sLoginFileEbayLine = $g_asNonDefaultLogin[5]
-	Local $asEbayLineArray = StringSplit($sLoginFileEbayLine, ",", 2)
-	Local $iStockNumber = $asEbayLineArray[0]
-	Local $sPartCode = $asEbayLineArray[1]
-
-	#Region -- eBay Test 1 - Edit eBay settings
-
-	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fc")
-	WinWaitActive("eBay User Configuration")
-	WinActivate("eBay User Configuration")
-	Sleep(5000)
-	ControlClick("eBay User Configuration", "", "TMemo1", "primary")
-	Send("^{TAB}")
-	If ControlCommand("eBay User Configuration", "", "TComboBox3", "GetCurrentSelection") <> "United States" Then
-		ControlCommand("eBay User Configuration", "", "TComboBox3", "SelectString", "United States")
-	Else
-		ControlCommand("eBay User Configuration", "", "TComboBox3", "SelectString", "Canada")
-	EndIf
-	Send("^{TAB}")
-	ControlCommand("eBay User Configuration", "", "TComboBox3", "SelectString", "Standard Shipping")
-	ControlClick("eBay User Configuration", "", "TAdvGlowButton3", "primary")
-
-	#EndRegion -- eBay Test 1 - Edit eBay settings
-
-	#Region -- eBay Test 2 - Edit eBay template
-	;Local $posStock = ControlGetPos($g_wMain, "", "TAdvEdit3")
-	;MouseClick("primary", $posStock[0], $posStock[1])
-	;WinWaitActive($g_wMain)
-	;TO-DO: make this not a constant timer
-	Sleep(10000)
-	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fo")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{PGDN 30}")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{Enter 3}")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "!s")
-	ControlClick("eBay Template Editor", "", "TAdvGlowButton5", "primary")
-	WinWait("[CLASS:TMessageForm; TITLE:Confirm]")
-	ControlClick("Confirm", "", "TButton2", "primary")
-	WinClose("eBay Template Editor")
-
-	#EndRegion -- eBay Test 2 - Edit eBay template
-
-	#Region -- eBay Test 3 - Look up stock number
-	WinWaitActive($g_wMain)
-	ControlSetText($g_wMain, "", "TAdvEdit3", $iStockNumber)
-	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
-	;TO-DO: make this not a constant timer
-	Sleep(20000)
-	#EndRegion -- eBay Test 3 - Look up stock number
-
-	#Region -- eBay Test 4 - Look up part code
-	ControlSetText($g_wMain, "", "Edit1", $sPartCode)
-	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
-	;TO-DO: this one too
-	Sleep(5000)
-	#EndRegion -- eBay Test 4 - Look up part code
-
-	Exit
-
-EndFunc   ;==>TestEbay
-
-#EndRegion --- EBAY TEST FUNCTION ---
-
 #Region --- RUNNING TEST CODE ---
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
+WinSetState($g_wMain, "", @SW_MAXIMIZE)
 ;ConsoleWrite(TestDashboard() & @CRLF)
-;ConsoleWrite(TestTerminal() & @CRLF)
+ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
-;ConsoleWrite(TestTrakker() & @CRLF)
-ConsoleWrite(TestEbay() & @CRLF)
 
 Exit 1
 

@@ -20,7 +20,7 @@
 #comments-end
 
 #include <Header.au3>
-;#include <DashboardTest.au3>
+#include <DashboardTest.au3>
 #include <Date.au3>
 #include <IE.au3>
 
@@ -997,11 +997,8 @@ Func TestEbay()
 	#EndRegion -- eBay Test 3 - Look up stock number
 
 	#Region -- eBay Test 4 - Look up part code
-	ControlSetText($g_wMain, "", "Edit1", $sPartCode)
-	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
-	;TO-DO: this one too
-	Sleep(5000)
-	#EndRegion -- eBay Test 4 - Look up part code
+
+	#EndRegion
 
 	Exit
 

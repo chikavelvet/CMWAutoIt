@@ -20,7 +20,7 @@
 #comments-end
 
 #include <Header.au3>
-;#include <DashboardTest.au3>
+#include <DashboardTest.au3>
 #include <Date.au3>
 #include <IE.au3>
 
@@ -947,11 +947,6 @@ EndFunc   ;==>TestReports
 Func TestEbay()
 	_OpenApp("ebay")
 
-	Local $sLoginFileEbayLine = $g_asNonDefaultLogin[5]
-	Local $asEbayLineArray = StringSplit($sLoginFileEbayLine, ",", 2)
-	Local $iStockNumber = $asEbayLineArray[0]
-	Local $sPartCode = $asEbayLineArray[1]
-
 	#Region -- eBay Test 1 - Edit eBay settings
 
 	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fc")
@@ -969,39 +964,13 @@ Func TestEbay()
 	ControlCommand("eBay User Configuration", "", "TComboBox3", "SelectString", "Standard Shipping")
 	ControlClick("eBay User Configuration", "", "TAdvGlowButton3", "primary")
 
-	#EndRegion -- eBay Test 1 - Edit eBay settings
+	#EndRegion
 
 	#Region -- eBay Test 2 - Edit eBay template
-	;Local $posStock = ControlGetPos($g_wMain, "", "TAdvEdit3")
-	;MouseClick("primary", $posStock[0], $posStock[1])
-	;WinWaitActive($g_wMain)
-	;TO-DO: make this not a constant timer
-	Sleep(10000)
-	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fo")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{PGDN 30}")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{Enter 3}")
-	ControlSend("eBay Template Editor", "", "TAdvMemo1", "!s")
-	ControlClick("eBay Template Editor", "", "TAdvGlowButton5", "primary")
-	WinWait("[CLASS:TMessageForm; TITLE:Confirm]")
-	ControlClick("Confirm", "", "TButton2", "primary")
-	WinClose("eBay Template Editor")
 
-	#EndRegion -- eBay Test 2 - Edit eBay template
 
-	#Region -- eBay Test 3 - Look up stock number
-	WinWaitActive($g_wMain)
-	ControlSetText($g_wMain, "", "TAdvEdit3", $iStockNumber)
-	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
-	;TO-DO: make this not a constant timer
-	Sleep(20000)
-	#EndRegion -- eBay Test 3 - Look up stock number
 
-	#Region -- eBay Test 4 - Look up part code
-	ControlSetText($g_wMain, "", "Edit1", $sPartCode)
-	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
-	;TO-DO: this one too
-	Sleep(5000)
-	#EndRegion -- eBay Test 4 - Look up part code
+	#EndRegion
 
 	Exit
 
