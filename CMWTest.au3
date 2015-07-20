@@ -115,10 +115,20 @@ Func TestSettings()
 	Send("!sso")
 	WinWait("Security for eBay")
 	Send("{Down 3}{Up}1")
-	Send("{Down}2")
+	Send("{Down}2,3")
 	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
 
 	#EndRegion -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
+
+	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
+
+	Send("!ssr")
+	WinWait("Security for CMIS")
+	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
+	Send("5,6")
+	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
+
+	#EndRegion -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
 	Exit
 EndFunc   ;==>TestSettings
