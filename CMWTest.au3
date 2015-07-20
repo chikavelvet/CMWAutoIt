@@ -95,6 +95,24 @@ Func TerminalOpenLogin($hWnd = "[CLASS:AfxFrameOrView80]")
 	EndIf
 EndFunc   ;==>TerminalOpenLogin
 
+#Region --- SETTINGS TEST FUNCTION ---
+
+Func TestSettings()
+	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+	Send("!ssf")
+	WinWait("Security for Dashboard")
+	;ControlSend("Security for Dashboard", "", "TAdvStringGrid1", "{Down 2}{Up 2}1")
+	Send("{Down 3}{Up}1")
+	For $i = 0 To 24
+		Send("{Down}1")
+	Next
+	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
+	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+	Exit
+EndFunc   ;==>TestSettings
+
+#EndRegion --- SETTINGS TEST FUNCTION ---
+
 #Region --- DASHBOARD TEST FUNCTION ---
 
 
@@ -411,7 +429,6 @@ EndFunc   ;==>TestDashboard
 
 #EndRegion --- DASHBOARD TEST FUNCTION ---
 
-
 #Region --- TERMINAL TEST FUNCTION ---
 
 Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
@@ -479,7 +496,6 @@ Func TestTerminal()
 EndFunc   ;==>TestTerminal
 
 #EndRegion --- TERMINAL TEST FUNCTION ---
-
 
 #Region --- ORDER TRAKKER TEST FUNCTION ---
 Func TestTrakker()
@@ -975,7 +991,7 @@ Func TestEbay()
 	;TO-DO: make this not a constant timer
 	Sleep(10000)
 	Local $posStock = ControlGetPos($g_wMain, "", "TAdvEdit3")
-	MouseClick("primary", $posStock[0]+5, $posStock[1]+5)
+	MouseClick("primary", $posStock[0] + 5, $posStock[1] + 5)
 	;WinWaitActive($g_wMain)
 
 	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fo")
@@ -1008,7 +1024,7 @@ Func TestEbay()
 	#Region -- eBay Test 5 - Add part to items to send, edit listing
 
 	$posStock = ControlGetPos($g_wMain, "", "TAdvStringGrid4")
-	MouseClick("primary", $posStock[0]+10, $posStock[1]+50)
+	MouseClick("primary", $posStock[0] + 10, $posStock[1] + 50)
 	ControlClick($g_wMain, "", "TAdvGlowButton24", "primary")
 	Sleep(1000)
 	ControlClick($g_wMain, "", "TAdvStringGrid3", "primary", 1, 55, 35)
@@ -1032,12 +1048,14 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
+ConsoleWrite(TestSettings() & @CRLF)
 ;ConsoleWrite(TestDashboard() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
-ConsoleWrite(TestEbay() & @CRLF)
+;ConsoleWrite(TestEbay() & @CRLF)
+
 
 Exit 1
 
