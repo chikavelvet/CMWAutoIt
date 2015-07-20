@@ -972,12 +972,14 @@ Func TestEbay()
 	#EndRegion -- eBay Test 1 - Edit eBay settings
 
 	#Region -- eBay Test 2 - Edit eBay template
-	;Local $posStock = ControlGetPos($g_wMain, "", "TAdvEdit3")
-	;MouseClick("primary", $posStock[0], $posStock[1])
-	;WinWaitActive($g_wMain)
 	;TO-DO: make this not a constant timer
 	Sleep(10000)
+	Local $posStock = ControlGetPos($g_wMain, "", "TAdvEdit3")
+	MouseClick("primary", $posStock[0]+5, $posStock[1]+5)
+	;WinWaitActive($g_wMain)
+
 	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fo")
+	WinWait("eBay Template Editor")
 	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{PGDN 30}")
 	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{Enter 3}")
 	ControlSend("eBay Template Editor", "", "TAdvMemo1", "!s")
@@ -1000,8 +1002,25 @@ Func TestEbay()
 	ControlSetText($g_wMain, "", "Edit1", $sPartCode)
 	ControlClick($g_wMain, "", "TAdvGlowButton16", "primary")
 	;TO-DO: this one too
-	Sleep(5000)
+	Sleep(20000)
 	#EndRegion -- eBay Test 4 - Look up part code
+
+	#Region -- eBay Test 5 - Add part to items to send, edit listing
+
+	$posStock = ControlGetPos($g_wMain, "", "TAdvStringGrid4")
+	MouseClick("primary", $posStock[0]+10, $posStock[1]+50)
+	ControlClick($g_wMain, "", "TAdvGlowButton24", "primary")
+	Sleep(1000)
+	ControlClick($g_wMain, "", "TAdvStringGrid3", "primary", 1, 55, 35)
+
+
+	WinWait("eBay Listing Editor")
+	ControlCommand("eBay Listing Editor", "", "TCheckBox1", "Check")
+	ControlSetText("eBay Listing Editor", "", "TAdvEdit1", "15")
+	ControlClick("eBay Listing Editor", "", "TButton1", "primary")
+	ControlClick("eBay Listing Editor", "", "TBitBtn2", "primary")
+
+	#EndRegion -- eBay Test 5 - Add part to items to send, edit listing
 
 	Exit
 
