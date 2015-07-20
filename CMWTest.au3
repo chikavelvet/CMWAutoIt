@@ -137,7 +137,9 @@ Func TestSettings()
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 
 	#Region -- Settings Test 5 - Try to open dashboard, get security error
-	;OpenApp("dash")
+	_OpenApp("dash")
+	WaitForUpdating()
+	CaptureScreen($g_wMain, "NotYODashboard", "SettingsTest")
 
 	#EndRegion -- Settings Test 5 - Try to open dashboard, get security error
 
@@ -145,12 +147,21 @@ Func TestSettings()
 	ControlClick($g_wMain, "", "TAdvGlowButton9", "primary")
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 5)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to") Then
-		CaptureScreen($g_wMain, "eBaySecurityCheck", "SettingsTest")
+		CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", "Button1", "primary")
 	Else
 		MsgBox(0, "Security box not appearing correctly", "Security settings may not be working properly.")
 	EndIf
 	#EndRegion -- Settings Test 6 - Try to open eBay, get security error
+
+	#Region -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
+	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
+	_OpenApp("dash")
+	WaitForUpdating()
+	CaptureScreen($g_wMain, "YODashboard", "SettingsTest")
+	_OpenApp("ebay")
+	CaptureScreen($g_wMain, "YOeBay", "SettingsTest")
+	#EndRegion -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
 
 	Exit
 EndFunc   ;==>TestSettings
@@ -416,8 +427,28 @@ Func TestDashboard()
 	Sleep(200)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
-	WinWait($g_wPrint)
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
 
+	Local $i = 1
+	While WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number")
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", "Button1", "primary")
+		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
+		Sleep(200)
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 5}")
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
+		WinWait("Enter Date for Active WOs")
+		ControlSend("Enter Date for Active WOs", "", "TDateTimePicker2", "{Right}" & @MDAY - $i)
+		$i += 1
+		ControlClick("Enter Date for Active WOs", "", "TBitBtn1", "primary")
+		WaitForUpdating()
+		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
+		Sleep(200)
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
+	WEnd
+
+	WinWait($g_wPrint)
 	WinSetState($g_wPrint, "", @SW_MAXIMIZE)
 	ControlClick($g_wPrint, "", "TButton4", "primary")
 	Sleep(100)
@@ -1097,8 +1128,8 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
+ConsoleWrite(TestDashboard() & @CRLF)
 ConsoleWrite(TestSettings() & @CRLF)
-;ConsoleWrite(TestDashboard() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
