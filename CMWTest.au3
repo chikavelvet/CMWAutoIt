@@ -136,6 +136,22 @@ Func TestSettings()
 
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 
+	#Region -- Settings Test 5 - Try to open dashboard, get security error
+	;OpenApp("dash")
+
+	#EndRegion -- Settings Test 5 - Try to open dashboard, get security error
+
+	#Region -- Settings Test 6 - Try to open eBay, get security error
+	ControlClick($g_wMain, "", "TAdvGlowButton9", "primary")
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 5)
+	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to") Then
+		CaptureScreen($g_wMain, "eBaySecurityCheck", "SettingsTest")
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", "Button1", "primary")
+	Else
+		MsgBox(0, "Security box not appearing correctly", "Security settings may not be working properly.")
+	EndIf
+	#EndRegion -- Settings Test 6 - Try to open eBay, get security error
+
 	Exit
 EndFunc   ;==>TestSettings
 

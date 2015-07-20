@@ -22,3 +22,5 @@ WEnd
 :r:frame::"[CLASS:AfxFrameOrView80]"
 :ro:glow::TAdvGlowButton
 :r:pr::"primary")
+:ro:conw::ConsoleWrite(
+:r*:crlf::& @CRLF
