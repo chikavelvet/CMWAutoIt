@@ -968,7 +968,15 @@ Func TestEbay()
 
 	#Region -- eBay Test 2 - Edit eBay template
 
-
+	ControlFocus($g_wMain, "", "TAdvOfficePager1")
+	ControlSend($g_wMain, "", "TAdvOfficePager1", "!fo")
+	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{PGDN 30}")
+	ControlSend("eBay Template Editor", "", "TAdvMemo1", "{Enter 3}")
+	ControlSend("eBay Template Editor", "", "TAdvMemo1", "!s")
+	ControlClick("eBay Template Editor", "", "TAdvGlowButton5", "primary")
+	WinWait("[CLASS:TMessageForm; TITLE:Confirm]")
+	ControlClick("Confirm", "", "TButton2", "primary")
+	WinClose("eBay Template Editor")
 
 	#EndRegion -- eBay Test 2 - Edit eBay template
 
