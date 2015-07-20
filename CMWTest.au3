@@ -99,15 +99,27 @@ EndFunc   ;==>TerminalOpenLogin
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+
 	Send("!ssf")
 	WinWait("Security for Dashboard")
-	;ControlSend("Security for Dashboard", "", "TAdvStringGrid1", "{Down 2}{Up 2}1")
 	Send("{Down 3}{Up}1")
 	For $i = 0 To 24
 		Send("{Down}1")
 	Next
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+
+
+	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
+
+	Send("!sso")
+	WinWait("Security for eBay")
+	Send("{Down 3}{Up}1")
+	Send("{Down}2")
+	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
+
+	#EndRegion -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
+
 	Exit
 EndFunc   ;==>TestSettings
 
