@@ -130,6 +130,12 @@ Func TestSettings()
 
 	#EndRegion -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
+	#Region -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
+	_OpenWS(@AppDataDir & "\AutoIt\CMWTestInvLogin.csv")
+	ImageTest123("SettingsTest")
+
+	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
+
 	Exit
 EndFunc   ;==>TestSettings
 
@@ -532,23 +538,19 @@ EndFunc   ;==>TestTrakker
 
 #Region --- IMAGING TEST FUNCTION ---
 
-Func TestImaging()
-	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
-	_OpenApp("image")
-
+Func ImageTest123($sTestSubDir = "ImagingTest")
 	#Region -- Imaging Test 1 - Look up a stock number -done
 	Local $sLoginFileImagingLine = $g_asNonDefaultLogin[2]
 	Local $asImagingLineArray = StringSplit($sLoginFileImagingLine, ",", 2)
-	Local $iStockNumber = $asImagingLineArray[0]
-	Local $sPartCode = $asImagingLineArray[1]
+	Global $iStockNumber = $asImagingLineArray[0]
+	Global $sPartCode = $asImagingLineArray[1]
 	;ConsoleWrite($iStockNumber & @CRLF)
 	ControlClick($g_wMain, "Imaging", "TAdvToolPanelTab1", "primary", 1, 5, 5)
 	ControlSetText($g_wMain, "Imaging", "TAdvEdit4", $iStockNumber)
 	ControlClick($g_wMain, "Imaging", "TAdvGlowButton15", "primary")
 	WinWait($g_wMain, $iStockNumber)
 
-	CaptureScreen($g_wMain, "StockNumber" & $iStockNumber & "Lookup", "ImagingTest")
+	CaptureScreen($g_wMain, "StockNumber" & $iStockNumber & "Lookup", $sTestSubDir)
 
 	#EndRegion -- Imaging Test 1 - Look up a stock number -done
 
@@ -559,7 +561,7 @@ Func TestImaging()
 	ControlClick($g_wMain, "Imaging", "TAdvGlowButton15", "primary")
 	WinWait($g_wMain, $sPartCode)
 
-	CaptureScreen($g_wMain, "SpecificPart" & $sPartCode, "ImagingTest")
+	CaptureScreen($g_wMain, "SpecificPart" & $sPartCode, $sTestSubDir)
 
 	#EndRegion -- Imaging Test 2 - Look up a specific part -done
 
@@ -589,14 +591,14 @@ Func TestImaging()
 		$j += 1
 	Next
 	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
-	Send("ImagingTest")
+	Send($sTestSubDir)
 	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
 	WinWait($g_wMain, "c: [OS]", 2)
 
 	ControlFocus($g_wMain, "Imaging", "TAdvStringGrid1")
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
-	Local $aiImageFromPos = ControlGetPos($g_wMain, "Imaging", "TImageEnMView2")
-	Local $aiImageToPos = ControlGetPos($g_wMain, "Imaging", "TImageEnMView1")
+	Global $aiImageFromPos = ControlGetPos($g_wMain, "Imaging", "TImageEnMView2")
+	Global $aiImageToPos = ControlGetPos($g_wMain, "Imaging", "TImageEnMView1")
 	MouseClickDrag("primary", $aiImageFromPos[0] + 175, $aiImageFromPos[1] + 50, $aiImageToPos[0] + 50, $aiImageToPos[1] + 50)
 	WinWait("Confirm", "Filename being copied", 5)
 	While WinExists("Confirm", "Filename being copied")
@@ -604,9 +606,18 @@ Func TestImaging()
 		WinWait("Confirm", "Filename being copied", 2.5)
 	WEnd
 	Sleep(2500)
-	CaptureScreen($g_wMain, "AddSinglePartFromBrowse", "ImagingTest")
+	CaptureScreen($g_wMain, "AddSinglePartFromBrowse", $sTestSubDir)
 
 	#EndRegion -- Imaging Test 3 - Add single image using browse image search window -done
+EndFunc   ;==>ImageTest123
+
+
+Func TestImaging()
+	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
+	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	_OpenApp("image")
+
+	ImageTest123()
 
 	#Region -- Imaging Test 4 - Add multiple images using Windows Explorer
 	Opt("SendKeyDelay", 5)
