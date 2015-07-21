@@ -24,8 +24,8 @@
 
 	These can be used as the "title" parameter for many AutoIt functions, to
 	select a specific window. If they need modification, it can be done all at once.
-	Currently they only hold a CLASS definition (except the password window),
-	but could also include title text and Regular Expressions, if necessary.
+	Currently they only hold a CLASS definition, but could also include title text
+	and Regular Expressions, if necessary.
 
 #comments-end
 
@@ -45,7 +45,7 @@ Opt("WinDetectHiddenText", 1); 0: don't detect, 1: detect
 Global $g_sPOD; = "BTA"
 
 ;quick ways to reference the various windows, listed in NOTES above
-Global $g_wMain = "[CLASS:TfrmMain_CMW]", $g_wCustomer = "[CLASS:TfrmCustomerUpdate]", $g_wFind = "[CLASS:TfrmFind_Customer]", $g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", $g_wPay = "[CLASS:TfrmPaymentInputBox]", $g_wGadget = "[CLASS:TfrmDashboardSettings]", $g_wMessage = "[CLASS:TAdvMessageForm]", $g_wPassword = "[CLASS:TfrmPassword; TITLE:Log in to Yard]", $g_wTerminal = "AlphaCom", $g_wDate = "[CLASS:TfrmEnterDateRange]", $g_wDashSett = "[CLASS:TfrmDashboardSettings]", $g_wPrint = "[CLASS:TPrintpreview]"
+Global $g_wMain = "[CLASS:TfrmMain_CMW]", $g_wCustomer = "[CLASS:TfrmCustomerUpdate]", $g_wFind = "[CLASS:TfrmFind_Customer]", $g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", $g_wPay = "[CLASS:TfrmPaymentInputBox]", $g_wGadget = "[CLASS:TfrmDashboardSettings]", $g_wMessage = "[CLASS:TAdvMessageForm]", $g_wPassword = "[CLASS:TfrmPassword]", $g_wTerminal = "AlphaCom", $g_wDate = "[CLASS:TfrmEnterDateRange]", $g_wDashSett = "[CLASS:TfrmDashboardSettings]", $g_wPrint = "[CLASS:TPrintpreview]"
 
 ;this is the default file with log-in information
 ;TO-DO: Maybe make an AutoIt GUI set-up to create this file and input all relevant information
@@ -188,6 +188,38 @@ Func _UpdateWS()
 	Return -1
 EndFunc   ;==>_UpdateWS
 
+Func LogIn($fiLoginFile = $g_fiDefaultLoginFile)
+	;wait for the first window (of yard select, update, and log-in) and get its handle
+	Local $hFirstWindow = WinGetTitle(WinWaitActive("[REGEXPTITLE:(Select Yard Number)|(Confirm)|(Log in to Yard)|(Security Lock)]"))
+
+	;choose what to do based on what window appeared
+	Switch $hFirstWindow
+		Case "Select Yard Number"
+			;ConsoleWrite("Select Yard Number Case" & @CRLF)
+			WinActivate("Select Yard Number")
+			ControlSetText("[CLASS:TfrmSelectYardNumber]", "", "Edit1", $g_iYardNumber)
+			Send("{Enter}")
+		Case "Confirm"
+			;ConsoleWrite("Confirm Case" & @CRLF)
+			_UpdateWS()
+			_OpenWS()
+	EndSwitch
+
+	WinActivate($hFirstWindow)
+	;wait for log-in screen to appear
+	WinWait($g_wPassword, "")
+	;if it finds it, log in, else display error message and halt script
+	If WinExists($g_wPassword, "OK") Then
+		ControlFocus($g_wPassword, "", "Edit1")
+		ControlSetText($g_wPassword, "", "Edit1", $g_sUserName)
+		ControlSetText($g_wPassword, "", "TEdit1", $g_sUserPwd)
+		ControlClick($g_wPassword, "", "TBitBtn2")
+	Else
+		MsgBox(0, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
+		Exit 1
+	EndIf
+EndFunc
+
 #comments-start
 
 	-- _OpenWS --
@@ -245,34 +277,7 @@ Func _OpenWS($fiLoginFile = $g_fiDefaultLoginFile, $asApps = Null, $bKillOpen = 
 
 	Run(@ProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
 
-	;wait for the first window (of yard select, update, and log-in) and get its handle
-	Local $hFirstWindow = WinGetTitle(WinWaitActive("[REGEXPTITLE:(Select Yard Number)|(Confirm)|(Log in to Yard)]"))
-
-	;choose what to do based on what window appeared
-	Switch $hFirstWindow
-		Case "Select Yard Number"
-			;ConsoleWrite("Select Yard Number Case" & @CRLF)
-			WinActivate("Select Yard Number")
-			ControlSetText("[CLASS:TfrmSelectYardNumber]", "", "Edit1", $g_iYardNumber)
-			Send("{Enter}")
-		Case "Confirm"
-			;ConsoleWrite("Confirm Case" & @CRLF)
-			_UpdateWS()
-			_OpenWS()
-	EndSwitch
-
-	;wait for log-in screen to appear
-	WinWait($g_wPassword, "")
-	;if it finds it, log in, else display error message and halt script
-	If WinExists($g_wPassword, "OK") Then
-		ControlFocus($g_wPassword, "", "Edit1")
-		ControlSetText($g_wPassword, "", "Edit1", $g_sUserName)
-		ControlSetText($g_wPassword, "", "TEdit1", $g_sUserPwd)
-		ControlClick($g_wPassword, "", "TBitBtn2")
-	Else
-		MsgBox(0, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
-		Exit 1
-	EndIf
+	LogIn($fiLoginFile)
 
 	;wait for CMW main window to appear, and make sure it is active
 	If $bKillOpen Then

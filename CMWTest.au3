@@ -191,6 +191,25 @@ Func TestSettings()
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
 
+	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
+	Send("!sw")
+	WinWait("Setup")
+	Send("^{Tab 5}")
+	ControlSetText("Setup", "", "TAdvSpinEdit1", "1")
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	;WinWaitNotActive($g_wMain, "", 350)
+	;ConsoleWrite("Not active" & @CRLF)
+	;WinActivate($g_wPassword)
+	;WinSetState($g_wPassword, "", @SW_SHOW)
+	;ConsoleWrite(Binary(WinGetState($g_wMain)) & @CRLF)
+	;ConsoleWrite("Title: " & WinGetTitle(WinGetHandle("")) & @CRLF & "Text: " & WinGetText(WinGetHandle("")) & @CRLF)
+	;ConsoleWrite("Waited" & @CRLF)
+	;WinActivate($g_wMain)
+	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
+
+	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
+
 	Exit
 EndFunc   ;==>TestSettings
 
@@ -1159,7 +1178,7 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-ConsoleWrite(TestDashboard() & @CRLF)
+;ConsoleWrite(TestDashboard() & @CRLF)
 ConsoleWrite(TestSettings() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
