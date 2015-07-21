@@ -276,6 +276,19 @@ Func TestSettings()
 
 	#EndRegion -- Settings Test 10 - Set different tools to open automatically, verify they do so
 
+	#Region -- Settings Test 11 - Edit printer settings
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
+	WinActivate("Setup")
+	Send("^{Tab 3}")
+	;ControlClick("Setup", "", "Edit5", "primary")
+	ControlSend("Setup", "", "Edit5", "{Down}")
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	#EndRegion -- Settings Test 11 - Edit printer settings
+
 	Exit
 EndFunc   ;==>TestSettings
 
