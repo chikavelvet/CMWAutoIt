@@ -159,9 +159,37 @@ Func TestSettings()
 	_OpenApp("dash")
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "YODashboard", "SettingsTest")
+
+	ControlClick($g_wMain, "", "TAdvGlowButton14")
+	WinWait($g_wMessage, "Never ask again", 5)
+	If WinExists($g_wMessage) Then
+		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
+		ControlClick($g_wMessage, "", "TAdvGlowButton1")
+		Sleep(100)
+	EndIf
+
 	_OpenApp("ebay")
 	CaptureScreen($g_wMain, "YOeBay", "SettingsTest")
+
+	Sleep(10000)
+
+	ControlClick($g_wMain, "", "TAdvGlowButton25")
+	WinWait($g_wMessage, "Never ask again", 5)
+	If WinExists($g_wMessage) Then
+		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
+		ControlClick($g_wMessage, "", "TAdvGlowButton1")
+		Sleep(100)
+	EndIf
+
+	Sleep(1000)
 	#EndRegion -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
+
+	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
+	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]")
+	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
+	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
+	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
 
 	Exit
 EndFunc   ;==>TestSettings
@@ -592,10 +620,13 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	Global $iStockNumber = $asImagingLineArray[0]
 	Global $sPartCode = $asImagingLineArray[1]
 	;ConsoleWrite($iStockNumber & @CRLF)
+	;ConsoleWrite("1" & @CRLF)
 	ControlClick($g_wMain, "Imaging", "TAdvToolPanelTab1", "primary", 1, 5, 5)
 	ControlSetText($g_wMain, "Imaging", "TAdvEdit4", $iStockNumber)
 	ControlClick($g_wMain, "Imaging", "TAdvGlowButton15", "primary")
 	WinWait($g_wMain, $iStockNumber)
+
+	;ConsoleWrite("3" & @CRLF)
 
 	CaptureScreen($g_wMain, "StockNumber" & $iStockNumber & "Lookup", $sTestSubDir)
 
