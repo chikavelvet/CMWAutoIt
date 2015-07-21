@@ -140,7 +140,6 @@ Func TestSettings()
 	_OpenApp("dash")
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "NotYODashboard", "SettingsTest")
-
 	#EndRegion -- Settings Test 5 - Try to open dashboard, get security error
 
 	#Region -- Settings Test 6 - Try to open eBay, get security error
@@ -186,14 +185,17 @@ Func TestSettings()
 
 	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
 	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]")
+	ConsoleWrite("About to wait" & @CRLF)
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 15)
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
 
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
-	Send("!sw")
-	WinWait("Setup")
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
 	Send("^{Tab 5}")
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "1")
 	$posSetupWin = WinGetPos("Setup")
@@ -209,6 +211,70 @@ Func TestSettings()
 	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
 
 	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
+
+	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
+	Send("!ssr")
+	WinWait("Security for CMIS")
+	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
+	Send("1,5,6")
+	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
+
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
+	WinActivate("Setup")
+	Send("^{Tab 4}")
+	For $i = 0 To 6
+		Send("{Tab}")
+		If Random(0, 1, 1) = 1 Then
+			Send("{Space}")
+		EndIf
+	Next
+	CaptureScreen($g_wMain, "RandomTabsToOpen1", "SettingsTest")
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+
+	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
+
+	Sleep(30000)
+	WinActivate($g_wMain)
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+
+	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
+
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
+	WinActivate("Setup")
+	Send("^{Tab 4}")
+	For $i = 0 To 6
+		Send("{Tab}")
+		Send("{Space}")
+	Next
+	CaptureScreen($g_wMain, "RandomTabsToOpen2", "SettingsTest")
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+
+	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
+
+	Sleep(30000)
+	While Not WinExists("Setup")
+		Send("!sw")
+		WinWait("Setup", "", 5)
+	WEnd
+	$posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+
+	CaptureScreen($g_wMain, "RandomTabsOpened2", "SettingsTest")
+
+	#EndRegion -- Settings Test 10 - Set different tools to open automatically, verify they do so
 
 	Exit
 EndFunc   ;==>TestSettings
