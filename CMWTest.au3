@@ -97,15 +97,41 @@ EndFunc   ;==>TerminalOpenLogin
 
 #Region --- SETTINGS TEST FUNCTION ---
 
+Func AccessCMWToolbar($i, $j, $k=0)
+	Local $iXOff
+	Switch $i
+		Case 0
+			$iXOff = 30
+		Case 1
+			$iXOff = 100
+		Case 2
+			$iXOff = 170
+		Case Else
+			$iXOff = 0
+	EndSwitch
+
+	ControlClick($g_wMain, "", "TAdvToolBar1", "primary", 1, $iXOff, 20)
+
+	Send("{Down " & $j & "}")
+	If $i = 1 And $j = 1 Then
+		Send("{Right}{Down " & $k & "}")
+	EndIf
+
+	Send("{Enter}")
+EndFunc
+
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
-	While Not WinExists("Security for Dashboard")
-		ConsoleWrite("Clicking" & @CRLF)
-		ControlClick($g_wMain, "", "TAdvToolBar1", "primary", 1, 100, 20)
-		Send("{Down}{Right}{Enter}")
-		WinWait("Security for Dashboard", "", 5)
-	WEnd
+;	While Not WinExists("Security for Dashboard")
+;		ConsoleWrite("Clicking" & @CRLF)
+;		ControlClick($g_wMain, "", "TAdvToolBar1", "primary", 1, 100, 20)
+;		Send("{Down}{Right}{Enter}")
+;		WinWait("Security for Dashboard", "", 5)
+;	WEnd
+
+	AccessCMWToolbar(1,1,0)
+
 	Send("{Down 3}{Up}1")
 	For $i = 0 To 24
 		Send("{Down}1")
