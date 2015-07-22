@@ -748,6 +748,52 @@ EndFunc   ;==>TestTerminal
 #EndRegion --- TERMINAL TEST FUNCTION ---
 
 #Region --- ORDER TRAKKER TEST FUNCTION ---
+
+;-----------------------------------------------------------------
+;All pos relative to TPageControl1, all tabs about 00-25 tall : 10
+;-----------------------------------------------------------------
+;0		Dispatch: 		rl-0000			|	ll-0000
+;---------------------------------------|----------
+;1		Warehouse: 		rl-0109			|	ll-0115
+;2		Dismantling:	rl-0230			|	ll-0211
+;3		Yard:			rl-0359			|	ll-0312
+;4		Brokered:		rl-0432			|	ll-0372
+;---------------------------------------|----------
+;5		Arrived:		rl-0537			|	ll-0449
+;6		Void:			rl-0631			|	ll-0514
+;7		RdySnd: 		rl-0703			|	ll-0575
+;---------------------------------------|----------
+;8		CPU: 			rl-0799			|	ll-0641
+;9		Truck:	 		rl-0869			|	ll-0701
+;10		LTL: 			rl-0950			|	ll-0761
+;11		FedEx/UPS: 		rl-1016			|	ll-0821
+;---------------------------------------|----------
+;12		Returned: 		rl-1137			|	ll-0914
+;13		Delivered: 		rl-1244			|	ll-0994
+;14		Restocked: 		rl-1355 rr-1468	|	ll-1076 lr-1163
+;----------------------------------------------------------
+
+
+Global $aiOTTabPos[15]
+
+Func OTGetTabInfo()
+	Local $sOTText = ControlGetText($g_wMain, "", "TAdvStringGrid1")
+	ConsoleWrite("Text: " & @CRLF & $sOTText & @CRLF)
+EndFunc   ;==>OTGetTabInfo
+
+;TO-DO: make the regex work
+Func OTGetActiveTab()
+	Local $sOTText = WinGetText($g_wMain)
+	$sOTText = StringRegExpReplace($sOTText, "Dispatch", "Despatch")
+	ConsoleWrite("Text: " & @CRLF & $sOTText & @CRLF)
+EndFunc   ;==>OTGetActiveTab
+
+Func OTSwitchToTab($iTabIndex)
+	;OTGetTabInfo()
+	;OTGetTabWidth()
+	;OTGetActiveTab()
+EndFunc   ;==>OTSwitchToTab
+
 Func TestTrakker()
 	_OpenApp("trak")
 	While Not WinExists("Setup")
@@ -757,36 +803,16 @@ Func TestTrakker()
 	WEnd
 	Local $posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	OTGetActiveTab()
 	;Sleep(500)
 
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
-	;All pos relative to TPageControl1, all tabs about 00-25 tall : 10
-	;-----------------------------------------------------------------
-	;0		Dispatch: 		0010-0100 : 0010	rl-0			|	ll-0
-	;---------------------------------------					|
-	;1		Warehouse: 		0120-0220 : 0120	rl-109			|	ll-115
-	;2		Dismantling:	0240-0320 : 0240	rl-230			|	ll-211
-	;3		Yard:			0340-0380 : 0340	rl-359			|	ll-312
-	;4		Brokered:		0400-0460 : 0400	rl-432			|	ll-372
-	;---------------------------------------					|
-	;5		Arrived:		0480-0520 : 0500	rl-537			|	ll-449
-	;6		Void:			0540-0580 : 0540	rl-631			|	ll-514
-	;7		RdySnd: 		0600-0650 : 0600	rl-703			|	ll-575
-	;---------------------------------------					|
-	;8		CPU: 			0670-0710 : 0670	rl-799			|	ll-641
-	;9		Truck:	 		0730-0770 : 0730	rl-869			|	ll-701
-	;10		LTL: 			0790-0830 : 0790	rl-950			|	ll-761
-	;11		FedEx/UPS: 		0850-0920 : 0850	rl-1016			|	ll-821
-	;---------------------------------------					|
-	;12		Returned: 		0940-1000 : 0940	rl-1137			|	ll-914
-	;13		Delivered: 		1020-1080 : 1020	rl-1244			|	ll-994
-	;14		Restocked: 		1100-1170 : 1100    rl-1355 rr-1468	|	ll-1076 lr-1163
 
 	;this is not working yet
 	;this is not working yet
-	Local $aiTabPos = [10, 120, 240, 340, 400, 500, 540, 600, 670, 730, 790, 850, 940, 1020, 1100]
+
 	#comments-start
 		#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 		;Check Warehouse Tab
@@ -826,7 +852,7 @@ Func TestTrakker()
 
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
 
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[0], 10)
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
 	Send("{Down 7}{Enter}")
 	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
