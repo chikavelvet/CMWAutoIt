@@ -97,7 +97,7 @@ EndFunc   ;==>TerminalOpenLogin
 
 #Region --- SETTINGS TEST FUNCTION ---
 
-Func AccessCMWToolbar($i, $j, $k=0)
+Func AccessCMWToolbar($i, $j, $k = 0)
 	Local $iXOff
 	Switch $i
 		Case 0
@@ -118,12 +118,12 @@ Func AccessCMWToolbar($i, $j, $k=0)
 	EndIf
 
 	Send("{Enter}")
-EndFunc
+EndFunc   ;==>AccessCMWToolbar
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 	While Not WinExists("Security for Dashboard")
-		AccessCMWToolbar(1,1,0)
+		AccessCMWToolbar(1, 1, 0)
 		WinWait("Security for Dashboard", "", 5)
 	WEnd
 
@@ -139,7 +139,7 @@ Func TestSettings()
 	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
 	While Not WinExists("Security for eBay")
-		AccessCMWToolbar(1,1,1)
+		AccessCMWToolbar(1, 1, 1)
 		WinWait("Security for eBay", "", 5)
 	WEnd
 
@@ -152,7 +152,7 @@ Func TestSettings()
 	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
 	While Not WinExists("Security for CMIS")
-		AccessCMWToolbar(1,1,2)
+		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
@@ -229,7 +229,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	Send("^{Tab 5}")
@@ -250,7 +250,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
 	While Not WinExists("Security for CMIS")
-		AccessCMWToolbar(1,1,2)
+		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
@@ -259,7 +259,7 @@ Func TestSettings()
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
 
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 
@@ -283,7 +283,7 @@ Func TestSettings()
 	EndIf
 	WinActivate($g_wMain)
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -292,7 +292,7 @@ Func TestSettings()
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
@@ -315,7 +315,7 @@ Func TestSettings()
 	EndIf
 	While Not WinExists("Setup")
 		WinActivate($g_wMain)
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -327,7 +327,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 11 - Edit printer settings
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
@@ -750,7 +750,56 @@ EndFunc   ;==>TestTerminal
 #Region --- ORDER TRAKKER TEST FUNCTION ---
 Func TestTrakker()
 	_OpenApp("trak")
+	While Not WinExists("Setup")
+		WinActivate($g_wMain)
+		AccessCMWToolbar(1, 0)
+		WinWait("Setup", "", 5)
+	WEnd
+	Local $posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	;Sleep(500)
 
+	;Assumes set up and parts sales are already completed
+	;TO-DO: do this instead of assuming it's done
+
+	;All pos relative to TPageControl1, all tabs about 00-25 tall : 10
+	;-----------------------------------------------------------------
+	;Dispatch: 		0010-0100 : 0055
+	;-------------------------------
+	;Warehouse: 	0120-0220 : 0170
+	;Dismantling:	0240-0320 : 0280
+	;Yard:			0340-0380 : 0360
+	;Brokered:		0400-0460 : 0430
+	;-------------------------------
+	;Arrived:		0480-0520 : 0500
+	;Void:			0540-0580 : 0560
+	;RdySnd: 		0600-0650 : 0625
+	;-------------------------------
+	;CPU: 			0670-0710 : 0690
+	;Truck:	 		0730-0770 : 0750
+	;LTL 			0790-0830 : 0810
+	;FedEx/UPS 		0850-0920 : 0885
+	;-------------------------------
+	;Returned 		0940-1000 : 0970
+	;Delivered 		1020-1080 : 1050
+	;Restocked 		1100-1170 : 1135
+
+	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
+	;Check Warehouse Tab
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 170, 10)
+	CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
+
+	;Check Brokered Tab
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 430, 10)
+	CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
+
+	;Check Yard Tab
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 360, 10)
+	CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
+	#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
+
+
+	Exit
 	Return "Order Trakker Test Complete"
 EndFunc   ;==>TestTrakker
 
@@ -1307,11 +1356,11 @@ EndFunc   ;==>TestEbay
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
 ;ConsoleWrite(TestDashboard() & @CRLF)
-ConsoleWrite(TestSettings() & @CRLF)
+;ConsoleWrite(TestSettings() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
-;ConsoleWrite(TestTrakker() & @CRLF)
+ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
 
 
