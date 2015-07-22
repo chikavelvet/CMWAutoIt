@@ -45,7 +45,12 @@ Opt("WinDetectHiddenText", 1); 0: don't detect, 1: detect
 Global $g_sPOD; = "BTA"
 
 ;quick ways to reference the various windows, listed in NOTES above
-Global $g_wMain = "[CLASS:TfrmMain_CMW]", $g_wCustomer = "[CLASS:TfrmCustomerUpdate]", $g_wFind = "[CLASS:TfrmFind_Customer]", $g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", $g_wPay = "[CLASS:TfrmPaymentInputBox]", $g_wGadget = "[CLASS:TfrmDashboardSettings]", $g_wMessage = "[CLASS:TAdvMessageForm]", $g_wPassword = "[CLASS:TfrmPassword]", $g_wTerminal = "AlphaCom", $g_wDate = "[CLASS:TfrmEnterDateRange]", $g_wDashSett = "[CLASS:TfrmDashboardSettings]", $g_wPrint = "[CLASS:TPrintpreview]"
+Global 	$g_wMain = "[CLASS:TfrmMain_CMW]", 					$g_wCustomer = "[CLASS:TfrmCustomerUpdate]", _
+		$g_wFind = "[CLASS:TfrmFind_Customer]", 			$g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", _
+		$g_wPay = "[CLASS:TfrmPaymentInputBox]", 			$g_wGadget = "[CLASS:TfrmDashboardSettings]", _
+		$g_wMessage = "[CLASS:TAdvMessageForm]", 			$g_wPassword = "[CLASS:TfrmPassword]", _
+		$g_wTerminal = "AlphaCom", 							$g_wDate = "[CLASS:TfrmEnterDateRange]", _
+		$g_wDashSett = "[CLASS:TfrmDashboardSettings]", 	$g_wPrint = "[CLASS:TPrintpreview]"
 
 ;this is the default file with log-in information
 ;TO-DO: Maybe make an AutoIt GUI set-up to create this file and input all relevant information
@@ -460,6 +465,8 @@ EndFunc   ;==>TermTextWait
 
 #comments-end
 Func CaptureScreen($hTitle = $g_wMain, $sName = Null, $fiSubDir = Null, $fiAltDir = Null)
+
+	Sleep(500)
 
 	If Not FileExists(@AppDataDir & "\AutoIt\Screen Captures") Then
 		DirCreate(@AppDataDir & "\AutoIt\Screen Captures")
