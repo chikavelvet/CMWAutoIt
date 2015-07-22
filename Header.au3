@@ -360,13 +360,19 @@ Func _OpenApp($sApp, $hWnd=$g_wMain)
 	If $bFlag Then
 		ConsoleWrite($sApp & " already opened." & @CRLF)
 	Else
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 5)
+		If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
+			Return -1
+		EndIf
 		ControlClick($hWnd, "", $sAppButton)
 		If $wAppWindow = "TRMTAB1" Then
+			WinWait("Checkmate Workstation", "Terminal Path is not set", 2)
 			If WinExists("Checkmate Workstation", "Terminal Path is not set") Then
 				Exit
 			EndIf
 		EndIf
 		WinWait($hWnd, $wAppWindow)
+		Return 0
 	EndIf
 EndFunc   ;==>_OpenApp
 

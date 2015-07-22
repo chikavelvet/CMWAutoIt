@@ -100,13 +100,18 @@ EndFunc   ;==>TerminalOpenLogin
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
-	Send("!ssf")
-	WinWait("Security for Dashboard")
+	While Not WinExists("Security for Dashboard")
+		ConsoleWrite("Clicking" & @CRLF)
+		ControlClick($g_wMain, "", "TAdvToolBar1", "primary", 1, 100, 20)
+		Send("{Down}{Right}{Enter}")
+		WinWait("Security for Dashboard", "", 5)
+	WEnd
 	Send("{Down 3}{Up}1")
 	For $i = 0 To 24
 		Send("{Down}1")
 	Next
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
+	Exit
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
 
@@ -185,7 +190,6 @@ Func TestSettings()
 
 	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
 	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
-	ConsoleWrite("About to wait" & @CRLF)
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 15)
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
