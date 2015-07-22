@@ -784,9 +784,10 @@ Func TestTrakker()
 	;13		Delivered: 		1020-1080 : 1020	rl-1244			|	ll-994
 	;14		Restocked: 		1100-1170 : 1100    rl-1355 rr-1468	|	ll-1076 lr-1163
 
+	;this is not working yet
+	;this is not working yet
+	Local $aiTabPos = [10, 120, 240, 340, 400, 500, 540, 600, 670, 730, 790, 850, 940, 1020, 1100]
 	#comments-start
-		Local $aiTabPos = [10,120,240,340,400,500,540,600,670,730,790,850,940,1020,1100]
-
 		#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 		;Check Warehouse Tab
 		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[1], 10)
@@ -824,6 +825,11 @@ Func TestTrakker()
 	;TO-DO: figure out how to make Test 1 and 2 work
 
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
+
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
+	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
+	Send("{Down 7}{Enter}")
+	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
 
 	#EndRegion -- Order Trakker Test 3 - Verify that the history is correct
 	Exit
