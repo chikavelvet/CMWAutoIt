@@ -764,41 +764,68 @@ Func TestTrakker()
 
 	;All pos relative to TPageControl1, all tabs about 00-25 tall : 10
 	;-----------------------------------------------------------------
-	;Dispatch: 		0010-0100 : 0055
-	;-------------------------------
-	;Warehouse: 	0120-0220 : 0170
-	;Dismantling:	0240-0320 : 0280
-	;Yard:			0340-0380 : 0360
-	;Brokered:		0400-0460 : 0430
-	;-------------------------------
-	;Arrived:		0480-0520 : 0500
-	;Void:			0540-0580 : 0560
-	;RdySnd: 		0600-0650 : 0625
-	;-------------------------------
-	;CPU: 			0670-0710 : 0690
-	;Truck:	 		0730-0770 : 0750
-	;LTL 			0790-0830 : 0810
-	;FedEx/UPS 		0850-0920 : 0885
-	;-------------------------------
-	;Returned 		0940-1000 : 0970
-	;Delivered 		1020-1080 : 1050
-	;Restocked 		1100-1170 : 1135
+	;0		Dispatch: 		0010-0100 : 0010	rl-0			|	ll-0
+	;---------------------------------------					|
+	;1		Warehouse: 		0120-0220 : 0120	rl-109			|	ll-115
+	;2		Dismantling:	0240-0320 : 0240	rl-230			|	ll-211
+	;3		Yard:			0340-0380 : 0340	rl-359			|	ll-312
+	;4		Brokered:		0400-0460 : 0400	rl-432			|	ll-372
+	;---------------------------------------					|
+	;5		Arrived:		0480-0520 : 0500	rl-537			|	ll-449
+	;6		Void:			0540-0580 : 0540	rl-631			|	ll-514
+	;7		RdySnd: 		0600-0650 : 0600	rl-703			|	ll-575
+	;---------------------------------------					|
+	;8		CPU: 			0670-0710 : 0670	rl-799			|	ll-641
+	;9		Truck:	 		0730-0770 : 0730	rl-869			|	ll-701
+	;10		LTL: 			0790-0830 : 0790	rl-950			|	ll-761
+	;11		FedEx/UPS: 		0850-0920 : 0850	rl-1016			|	ll-821
+	;---------------------------------------					|
+	;12		Returned: 		0940-1000 : 0940	rl-1137			|	ll-914
+	;13		Delivered: 		1020-1080 : 1020	rl-1244			|	ll-994
+	;14		Restocked: 		1100-1170 : 1100    rl-1355 rr-1468	|	ll-1076 lr-1163
 
-	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
-	;Check Warehouse Tab
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 170, 10)
-	CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
+	#comments-start
+		Local $aiTabPos = [10,120,240,340,400,500,540,600,670,730,790,850,940,1020,1100]
 
-	;Check Brokered Tab
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 430, 10)
-	CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
+		#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
+		;Check Warehouse Tab
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[1], 10)
+		CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
+		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
 
-	;Check Yard Tab
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, 360, 10)
-	CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
-	#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
+		;Check Brokered Tab
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[4], 10)
+		CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
+		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
 
+		;Check Yard Tab
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[3], 10)
+		CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
+		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
+		Sleep(500)
+		#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 
+		#Region -- Order Trakker Test 2 - Move each part into every tab
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
+		CaptureScreen($g_wMain, "", "Part012Dispatch")
+		For $i = 0 To 2
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
+		Sleep(500)
+		For $j = 1 to UBound($aiTabPos)-2
+		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-$j, "primary")
+		Sleep(500)
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[$j], 10)
+		CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
+		Next
+		Next
+		#EndRegion
+
+	#comments-end
+	;TO-DO: figure out how to make Test 1 and 2 work
+
+	#Region -- Order Trakker Test 3 - Verify that the history is correct
+
+	#EndRegion -- Order Trakker Test 3 - Verify that the history is correct
 	Exit
 	Return "Order Trakker Test Complete"
 EndFunc   ;==>TestTrakker
