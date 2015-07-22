@@ -57,6 +57,7 @@ Global $g_iYardNumber
 Global $g_sUserName, $g_sUserPwd
 
 Global $g_iDefScreenCaptures = 0
+Global $g_iErrorCount = 0
 
 Global $g_asNonDefaultLogin
 

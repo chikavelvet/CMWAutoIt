@@ -122,29 +122,27 @@ EndFunc
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
-
-;	While Not WinExists("Security for Dashboard")
-;		ConsoleWrite("Clicking" & @CRLF)
-;		ControlClick($g_wMain, "", "TAdvToolBar1", "primary", 1, 100, 20)
-;		Send("{Down}{Right}{Enter}")
-;		WinWait("Security for Dashboard", "", 5)
-;	WEnd
-
-	AccessCMWToolbar(1,1,0)
+	While Not WinExists("Security for Dashboard")
+		AccessCMWToolbar(1,1,0)
+		WinWait("Security for Dashboard", "", 5)
+	WEnd
 
 	Send("{Down 3}{Up}1")
 	For $i = 0 To 24
 		Send("{Down}1")
 	Next
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
-	Exit
+	;Exit
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
 
 	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
-	Send("!sso")
-	WinWait("Security for eBay")
+	While Not WinExists("Security for eBay")
+		AccessCMWToolbar(1,1,1)
+		WinWait("Security for eBay", "", 5)
+	WEnd
+
 	Send("{Down 3}{Up}1")
 	Send("{Down}2,3")
 	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
@@ -153,8 +151,11 @@ Func TestSettings()
 
 	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
-	Send("!ssr")
-	WinWait("Security for CMIS")
+	While Not WinExists("Security for CMIS")
+		AccessCMWToolbar(1,1,2)
+		WinWait("Security for CMIS", "", 5)
+	WEnd
+
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
 	Send("5,6")
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
@@ -199,6 +200,11 @@ Func TestSettings()
 	EndIf
 
 	_OpenApp("ebay")
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 10)
+	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
+		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
+	EndIf
 	CaptureScreen($g_wMain, "YOeBay", "SettingsTest")
 
 	Sleep(10000)
@@ -223,7 +229,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 	While Not WinExists("Setup")
-		Send("!sw")
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
 	Send("^{Tab 5}")
@@ -243,17 +249,20 @@ Func TestSettings()
 	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 
 	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
-	Send("!ssr")
-	WinWait("Security for CMIS")
+	While Not WinExists("Security for CMIS")
+		AccessCMWToolbar(1,1,2)
+		WinWait("Security for CMIS", "", 5)
+	WEnd
+
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
 	Send("1,5,6")
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
 
 	While Not WinExists("Setup")
-		Send("!sw")
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
-	WinActivate("Setup")
+
 	Send("^{Tab 4}")
 	For $i = 0 To 6
 		Send("{Tab}")
@@ -267,10 +276,14 @@ Func TestSettings()
 
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 
-	Sleep(30000)
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
+	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
+		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
+	EndIf
 	WinActivate($g_wMain)
 	While Not WinExists("Setup")
-		Send("!sw")
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -279,12 +292,13 @@ Func TestSettings()
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
 	While Not WinExists("Setup")
-		Send("!sw")
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
 	Send("^{Tab 4}")
 	For $i = 0 To 6
+		Sleep(5000)
 		Send("{Tab}")
 		Send("{Space}")
 	Next
@@ -294,9 +308,14 @@ Func TestSettings()
 
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 
-	Sleep(30000)
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
+	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
+		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
+	EndIf
 	While Not WinExists("Setup")
-		Send("!sw")
+		WinActivate($g_wMain)
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -308,7 +327,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 11 - Edit printer settings
 	While Not WinExists("Setup")
-		Send("!sw")
+		AccessCMWToolbar(1,0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
@@ -777,7 +796,7 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	ControlClick($g_wMain, "Imaging", "TDirectoryListBoxEx1", "primary", 2, 1, 1)
 	Local $asPicture = StringSplit($g_fiScreenCaptureFolder, "\")
 	;_ArrayDisplay($asPicture)
-	Opt("SendKeyDelay", 100)
+	;Opt("SendKeyDelay", 100)
 	;	For $i = 2 To $asPicture[0]
 	;		Sleep(100)
 	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down}")
@@ -788,11 +807,11 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	$j = 0
 	For $i In $asPicture
 		If $j >= 2 Then
-			Sleep(100)
+			Sleep(500)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
 			Send($i)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-			Sleep(100)
+			;Sleep(5000))
 		EndIf
 		$j += 1
 	Next
