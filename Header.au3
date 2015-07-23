@@ -71,7 +71,7 @@ Global $g_fiScreenCaptureFolder = @AppDataDir & "\AutoIt\Screen Captures\" & $g_
 ;makes some things easier, but could cause problems, so change if necessary
 ;(I don't believe anything done so far requires this)
 AutoItSetOption("WinTitleMatchMode", 2)
-HotKeySet("{Esc}", Terminate)
+HotKeySet("{END}", Terminate)
 
 Func Terminate()
 	Exit

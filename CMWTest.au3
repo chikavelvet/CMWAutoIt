@@ -592,7 +592,7 @@ Func TestDashboard()
 	#EndRegion -- Dashboard Test 6 - Change columns to display -done
 
 	#Region -- Dashboard Test 7 - Show details for WO -done
-
+	#comments-start
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(200)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
@@ -624,7 +624,7 @@ Func TestDashboard()
 	Sleep(100)
 	CaptureScreen($g_wPrint, "WODetails", "DashboardTest")
 	ControlClick($g_wPrint, "", "TButton6", "primary")
-
+	#comments-end
 	#EndRegion -- Dashboard Test 7 - Show details for WO -done
 
 	#Region -- Dashboard Test 3 - Verify resizing -done
@@ -677,7 +677,10 @@ EndFunc   ;==>TestDashboard
 #Region --- TERMINAL TEST FUNCTION ---
 
 Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
-	ControlSend($g_wMain, "", "TAdvOfficePager1", "!sw")
+	While Not WinExists("Setup")
+		AccessCMWToolbar(1, 0)
+		WinWait("Setup", "", 5)
+	WEnd
 	WinWait("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
 	WinActivate("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
 	ControlSend("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TPageControl1", "^{Tab 2}")
@@ -804,7 +807,9 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 		If $j >= 2 Then
 			Sleep(500)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
+			Sleep(100)
 			Send($i)
+			Sleep(100)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
 			;Sleep(5000))
 		EndIf
@@ -958,7 +963,7 @@ Func TestImaging()
 		Exit
 
 		#EndRegion -- Imaging Test 7 - Change location of imported images
-	#comments-end
+
 	#Region -- Imaging Test 8 - Look up the images in alphacom and verify link
 
 	TerminalOpenLogin()
@@ -996,7 +1001,7 @@ Func TestImaging()
 	Sleep(500)
 
 	#EndRegion -- Imaging Test 8 - Look up the images in alphacom and verify link
-	#comments-start
+
 		#Region -- Imaging Test 9 - Print the images from the viewer
 
 		Local $aiViewerWindPos = WinGetPos("Image Viewer")
@@ -1306,7 +1311,7 @@ ConsoleWrite(TestTerminal() & @CRLF)
 ConsoleWrite(TestImaging() & @CRLF)
 ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
-ConsoleWrite(TestEbay() & @CRLF)
+;ConsoleWrite(TestEbay() & @CRLF)
 ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 1
