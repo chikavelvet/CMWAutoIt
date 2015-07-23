@@ -77,6 +77,8 @@ Global $g_fiScreenCaptureFolder = @AppDataDir & "\AutoIt\Screen Captures\" & $g_
 ;(I don't believe anything done so far requires this)
 AutoItSetOption("WinTitleMatchMode", 2)
 
+HotKeySet("{Esc}", "_EndProg")
+
 #comments-start
 
 	-- _EndProg --

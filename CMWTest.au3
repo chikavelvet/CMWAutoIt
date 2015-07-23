@@ -811,7 +811,6 @@ Func TestTrakker()
 
 
 	;this is not working yet
-	;this is not working yet
 
 	#comments-start
 		#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
