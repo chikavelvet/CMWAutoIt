@@ -226,16 +226,14 @@ Func TestSettings()
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
-
 		WinWait("Setup", "", 5)
 	WEnd
-	Send(
-	"^{Tab 5}")
+	Send("^{Tab 5}")
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	WinWaitNotActive($g_wMain, "", 350)
-	ConsoleWrite("Not active" & @CRLF)
+;	WinWaitNotActive($g_wMain, "", 350)
+;	ConsoleWrite("Not active" & @CRLF)
 ;	WinActivate($g_wPassword)
 ;	WinSetState($g_wPassword, "", @SW_SHOW)
 ;	WinActivate($g_wMain)
@@ -1303,14 +1301,13 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-;ConsoleWrite(TestDashboard() & @CRLF)
-ConsoleWrite(TestSettings() & @CRLF)
-;ConsoleWrite(TestTerminal() & @CRLF)
-;ConsoleWrite(TestImaging() & @CRLF)
-;ConsoleWrite(TestReports() & @CRLF)
+ConsoleWrite(TestDashboard() & @CRLF)
+ConsoleWrite(TestTerminal() & @CRLF)
+ConsoleWrite(TestImaging() & @CRLF)
+ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
-;ConsoleWrite(TestEbay() & @CRLF)
-
+ConsoleWrite(TestEbay() & @CRLF)
+ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 1
 
