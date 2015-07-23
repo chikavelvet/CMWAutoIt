@@ -1200,7 +1200,7 @@ Func TestReports()
 
 	#EndRegion -- Reports Test 3 - Test a few different reports -done
 
-	ControlClick($g_wMain, "", "TAdvGlowButton15")
+	ControlClick($g_wMain, "", "TAdvGlowButton21")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
 		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
