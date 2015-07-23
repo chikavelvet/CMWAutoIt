@@ -97,7 +97,7 @@ EndFunc   ;==>TerminalOpenLogin
 
 #Region --- SETTINGS TEST FUNCTION ---
 
-Func AccessCMWToolbar($i, $j, $k=0)
+Func AccessCMWToolbar($i, $j, $k = 0)
 	Local $iXOff
 	Switch $i
 		Case 0
@@ -118,12 +118,12 @@ Func AccessCMWToolbar($i, $j, $k=0)
 	EndIf
 
 	Send("{Enter}")
-EndFunc
+EndFunc   ;==>AccessCMWToolbar
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 	While Not WinExists("Security for Dashboard")
-		AccessCMWToolbar(1,1,0)
+		AccessCMWToolbar(1, 1, 0)
 		WinWait("Security for Dashboard", "", 5)
 	WEnd
 
@@ -139,7 +139,7 @@ Func TestSettings()
 	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
 	While Not WinExists("Security for eBay")
-		AccessCMWToolbar(1,1,1)
+		AccessCMWToolbar(1, 1, 1)
 		WinWait("Security for eBay", "", 5)
 	WEnd
 
@@ -152,7 +152,7 @@ Func TestSettings()
 	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
 	While Not WinExists("Security for CMIS")
-		AccessCMWToolbar(1,1,2)
+		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
@@ -168,21 +168,17 @@ Func TestSettings()
 
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 
-	#Region -- Settings Test 5 - Try to open dashboard, get security error
+	#Region -- Settings Test 5 - Try to open dashboard, get no data
 	_OpenApp("dash")
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "NotYODashboard", "SettingsTest")
-	#EndRegion -- Settings Test 5 - Try to open dashboard, get security error
+	#EndRegion -- Settings Test 5 - Try to open dashboard, get no data
 
 	#Region -- Settings Test 6 - Try to open eBay, get security error
 	ControlClick($g_wMain, "", "TAdvGlowButton9", "primary")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 5)
-	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to") Then
-		CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
-		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", "Button1", "primary")
-	Else
-		MsgBox(0, "Security box not appearing correctly", "Security settings may not be working properly.")
-	EndIf
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 10)
+	CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
+
 	#EndRegion -- Settings Test 6 - Try to open eBay, get security error
 
 	#Region -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
@@ -226,31 +222,32 @@ Func TestSettings()
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
-
+	ConsoleWrite("Got here" & @CRLF)
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
+
 		WinWait("Setup", "", 5)
 	WEnd
-	Send("^{Tab 5}")
-	ControlSetText("Setup", "", "TAdvSpinEdit1", "1")
+	Send(
+	"^{Tab 5}")
+	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	;WinWaitNotActive($g_wMain, "", 350)
-	;ConsoleWrite("Not active" & @CRLF)
-	;WinActivate($g_wPassword)
-	;WinSetState($g_wPassword, "", @SW_SHOW)
-	;ConsoleWrite(Binary(WinGetState($g_wMain)) & @CRLF)
-	;ConsoleWrite("Title: " & WinGetTitle(WinGetHandle("")) & @CRLF & "Text: " & WinGetText(WinGetHandle("")) & @CRLF)
-	;ConsoleWrite("Waited" & @CRLF)
-	;WinActivate($g_wMain)
-	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
+	WinWaitNotActive($g_wMain, "", 350)
+	ConsoleWrite("Not active" & @CRLF)
+;	WinActivate($g_wPassword)
+;	WinSetState($g_wPassword, "", @SW_SHOW)
+;	WinActivate($g_wMain)
+	;Requires user input here
+	;TO-GO: make it not require user input
 
+	LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
 	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 
 	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
 	While Not WinExists("Security for CMIS")
-		AccessCMWToolbar(1,1,2)
+		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
@@ -259,7 +256,7 @@ Func TestSettings()
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
 
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 
@@ -283,7 +280,7 @@ Func TestSettings()
 	EndIf
 	WinActivate($g_wMain)
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -292,7 +289,7 @@ Func TestSettings()
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
@@ -315,7 +312,7 @@ Func TestSettings()
 	EndIf
 	While Not WinExists("Setup")
 		WinActivate($g_wMain)
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
@@ -327,7 +324,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 11 - Edit printer settings
 	While Not WinExists("Setup")
-		AccessCMWToolbar(1,0)
+		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
