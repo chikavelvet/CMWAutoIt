@@ -774,24 +774,44 @@ EndFunc   ;==>TestTerminal
 ;----------------------------------------------------------
 
 
-Global $aiOTTabPos[15]
+Global $aiOTTabPos[15] = [30]
 
-Func OTGetTabInfo()
-	Local $sOTText = ControlGetText($g_wMain, "", "TAdvStringGrid1")
-	ConsoleWrite("Text: " & @CRLF & $sOTText & @CRLF)
-EndFunc   ;==>OTGetTabInfo
+Global $asOTNameIndex[15] = 	["Dispatch", _
+								"Warehouse", "Dismantling", "Yard", "Brokered", _
+								"Arrived", "Void", "RdySnd", _
+								"CPU", "Truck", "LTL", "FedEx/UPS", _
+								"Returned", "Delivered", "Restocked"]
 
-;TO-DO: make the regex work
+Global $aiOTTabBaseWidths[15] = [80,94,100,59,78,66,59,68,60,60,60,93,79,83,88]
+Global $sLastActiveTab = "Restocked"
+
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
-	$sOTText = StringRegExpReplace($sOTText, "Dispatch", "Despatch")
-	ConsoleWrite("Text: " & @CRLF & $sOTText & @CRLF)
+	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTText & @CRLF)
+	Local $asOTTextMatch = StringRegExp($sOTText, "Dispatch(?s)(.*)" & $sLastActiveTab, 1)
+	Local $sActiveTab = StringStripWS($asOTTextMatch[0], 8)
+	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
+
+
+Func OTGetActiveTabWidth()
+	Local $sActiveTab = OTGetActiveTab()
+	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
+	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
+	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
+	If $asActiveInfoSplit[0] == 1 Then
+		ConsoleWrite("ArraySearch: " & _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1]) & @CRLF)
+		Return $aiOTTabBaseWidths[_ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])]
+		;OTSetTabPos($asActiveInfoSplit[1], 0)
+	EndIf
+	Return 0
+EndFunc
+
 Func OTSwitchToTab($iTabIndex)
-	;OTGetTabInfo()
-	;OTGetTabWidth()
-	;OTGetActiveTab()
+	Local $tempTab = OTGetActiveTab()
+	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTabIndex - 1] + OTGetActiveTabWidth(), 10)
+	$sLastActiveTab = $tempTab
 EndFunc   ;==>OTSwitchToTab
 
 Func TestTrakker()
@@ -803,7 +823,10 @@ Func TestTrakker()
 	WEnd
 	Local $posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	OTGetActiveTab()
+	ConsoleWrite(OTGetActiveTabWidth() & @CRLF)
+	OTSwitchToTab(1)
+	ConsoleWrite(OTGetActiveTabWidth() & @CRLF)
+	Exit
 	;Sleep(500)
 
 	;Assumes set up and parts sales are already completed
