@@ -232,11 +232,11 @@ Func TestSettings()
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-;	WinWaitNotActive($g_wMain, "", 350)
-;	ConsoleWrite("Not active" & @CRLF)
-;	WinActivate($g_wPassword)
-;	WinSetState($g_wPassword, "", @SW_SHOW)
-;	WinActivate($g_wMain)
+	;	WinWaitNotActive($g_wMain, "", 350)
+	;	ConsoleWrite("Not active" & @CRLF)
+	;	WinActivate($g_wPassword)
+	;	WinSetState($g_wPassword, "", @SW_SHOW)
+	;	WinActivate($g_wMain)
 	;Requires user input here
 	;TO-GO: make it not require user input
 
@@ -593,14 +593,14 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 7 - Show details for WO -done
 	#comments-start
-	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
-	Sleep(200)
-	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
-	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
+		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
+		Sleep(200)
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
 
-	Local $i = 1
-	While WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number")
+		Local $i = 1
+		While WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number")
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", "Button1", "primary")
 		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 		Sleep(200)
@@ -616,14 +616,14 @@ Func TestDashboard()
 		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
 		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
-	WEnd
+		WEnd
 
-	WinWait($g_wPrint)
-	WinSetState($g_wPrint, "", @SW_MAXIMIZE)
-	ControlClick($g_wPrint, "", "TButton4", "primary")
-	Sleep(100)
-	CaptureScreen($g_wPrint, "WODetails", "DashboardTest")
-	ControlClick($g_wPrint, "", "TButton6", "primary")
+		WinWait($g_wPrint)
+		WinSetState($g_wPrint, "", @SW_MAXIMIZE)
+		ControlClick($g_wPrint, "", "TButton4", "primary")
+		Sleep(100)
+		CaptureScreen($g_wPrint, "WODetails", "DashboardTest")
+		ControlClick($g_wPrint, "", "TButton6", "primary")
 	#comments-end
 	#EndRegion -- Dashboard Test 7 - Show details for WO -done
 
@@ -964,43 +964,43 @@ Func TestImaging()
 
 		#EndRegion -- Imaging Test 7 - Change location of imported images
 
-	#Region -- Imaging Test 8 - Look up the images in alphacom and verify link
+		#Region -- Imaging Test 8 - Look up the images in alphacom and verify link
 
-	TerminalOpenLogin()
+		TerminalOpenLogin()
 
-	;TO-DO: make this work
-	;Send("!es")
-	;Local $sTerminalScreen = ClipGet()
-	;ConsoleWrite($sTerminalScreen & @CRLF)
-	;Local $asTerminalScreenArray = StringSplit($sTerminalScreen, ":", 2)
-	;_ArrayDisplay($asTerminalScreenArray)
-	;_ArraySearch($asTerminalScreenArray, ""
+		;TO-DO: make this work
+		;Send("!es")
+		;Local $sTerminalScreen = ClipGet()
+		;ConsoleWrite($sTerminalScreen & @CRLF)
+		;Local $asTerminalScreenArray = StringSplit($sTerminalScreen, ":", 2)
+		;_ArrayDisplay($asTerminalScreenArray)
+		;_ArraySearch($asTerminalScreenArray, ""
 
-	Send("{Down 4}")
-	Send($sPartCode)
-	Send("{Enter}")
-	Send("{Down 2}")
-	Send($iStockNumber)
-	Send("{ESC}")
+		Send("{Down 4}")
+		Send($sPartCode)
+		Send("{Enter}")
+		Send("{Down 2}")
+		Send($iStockNumber)
+		Send("{ESC}")
 
-	TermTextWait($g_wTerminal, "Ready", "AfxFrameOrView801", "Stock #: " & $iStockNumber)
-	Send("{Left}")
-	Sleep(100)
-	CaptureScreen($g_wMain, "ImageLink", "ImagingTest")
-	;Local $aiAlphaPos = ControlGetPos("AlphaCom", "", "AfxFrameOrView801")
-	;Sleep(6000)
-	;_ArrayDisplay($aiAlphaPos)
-	;ConsoleWrite($aiAlphaPos & @CRLF)
-	;Exit
-	;MouseMove(@DesktopWidth * .625, @DesktopHeight * .5926)
-	MouseClick("primary", @DesktopWidth * .625, @DesktopHeight * .5926)
-	WinWait("Image Viewer")
-	WinActivate("Image Viewer")
-	Sleep(5000)
-	CaptureScreen("Image Viewer", "VerifyLink", "ImagingTest")
-	Sleep(500)
+		TermTextWait($g_wTerminal, "Ready", "AfxFrameOrView801", "Stock #: " & $iStockNumber)
+		Send("{Left}")
+		Sleep(100)
+		CaptureScreen($g_wMain, "ImageLink", "ImagingTest")
+		;Local $aiAlphaPos = ControlGetPos("AlphaCom", "", "AfxFrameOrView801")
+		;Sleep(6000)
+		;_ArrayDisplay($aiAlphaPos)
+		;ConsoleWrite($aiAlphaPos & @CRLF)
+		;Exit
+		;MouseMove(@DesktopWidth * .625, @DesktopHeight * .5926)
+		MouseClick("primary", @DesktopWidth * .625, @DesktopHeight * .5926)
+		WinWait("Image Viewer")
+		WinActivate("Image Viewer")
+		Sleep(5000)
+		CaptureScreen("Image Viewer", "VerifyLink", "ImagingTest")
+		Sleep(500)
 
-	#EndRegion -- Imaging Test 8 - Look up the images in alphacom and verify link
+		#EndRegion -- Imaging Test 8 - Look up the images in alphacom and verify link
 
 		#Region -- Imaging Test 9 - Print the images from the viewer
 
@@ -1306,7 +1306,7 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-ConsoleWrite(TestDashboard() & @CRLF)
+;ConsoleWrite(TestDashboard() & @CRLF)
 ConsoleWrite(TestTerminal() & @CRLF)
 ConsoleWrite(TestImaging() & @CRLF)
 ConsoleWrite(TestReports() & @CRLF)
