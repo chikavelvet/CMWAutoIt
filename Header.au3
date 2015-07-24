@@ -85,12 +85,12 @@ HotKeySet("{Esc}", "_EndProg")
 	This function is set up by OnAutoItExitRegister to run when AutoIt exits.
 	A normal Exit command (@exitCode of 0) will simply cause a display message
 	to come up stating the script has ended.
-	Exit 1 (@exitCode of 1) will cause the same message box to appear, but also
+	Exit 2 (@exitCode of 2) will cause the same message box to appear, but also
 	will close the CMW Main window.
 
 #comments-end
 Func _EndProg()
-	If @exitCode = 1 Then; if the flag is set to 1
+	If @exitCode = 2 Then; if the flag is set to 1
 		WinClose($g_wMain); close the main CMW window
 	EndIf
 	MsgBox(0, "Script Execution Notification", "Script has ended."); notify that the script is ending
@@ -126,7 +126,7 @@ Func _UpdateWS()
 			$sUpgradePrefix = "qaupgrade"
 		Case Else
 			MsgBox(0, "Error", "Invalid CMW Type (check cmwautoupdate.ini)")
-			Exit 1
+			Exit 2
 	EndSwitch
 
 	;wait for update window
@@ -178,7 +178,7 @@ Func _UpdateWS()
 	;if the executable isn't there after the 5 minute loop, throw error
 	If Not FileExists($sExecutablePath) Then
 		MsgBox(0, "File not Found", "Download did not complete or took longer than five minutes. Please retry.")
-		Exit 1
+		Exit 2
 	EndIf
 
 	;run the executable
@@ -224,7 +224,7 @@ Func LogIn($fiLoginFile = $g_fiDefaultLoginFile)
 		ControlClick($g_wPassword, "", "TBitBtn2")
 	Else
 		MsgBox(0, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
-		Exit 1
+		Exit 2
 	EndIf
 EndFunc
 

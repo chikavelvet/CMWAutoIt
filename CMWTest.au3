@@ -749,47 +749,26 @@ EndFunc   ;==>TestTerminal
 
 #Region --- ORDER TRAKKER TEST FUNCTION ---
 
-;-----------------------------------------------------------------
-;All pos relative to TPageControl1, all tabs about 00-25 tall : 10
-;-----------------------------------------------------------------
-;0		Dispatch: 		rl-0000			|	ll-0000
-;---------------------------------------|----------
-;1		Warehouse: 		rl-0109			|	ll-0115
-;2		Dismantling:	rl-0230			|	ll-0211
-;3		Yard:			rl-0359			|	ll-0312
-;4		Brokered:		rl-0432			|	ll-0372
-;---------------------------------------|----------
-;5		Arrived:		rl-0537			|	ll-0449
-;6		Void:			rl-0631			|	ll-0514
-;7		RdySnd: 		rl-0703			|	ll-0575
-;---------------------------------------|----------
-;8		CPU: 			rl-0799			|	ll-0641
-;9		Truck:	 		rl-0869			|	ll-0701
-;10		LTL: 			rl-0950			|	ll-0761
-;11		FedEx/UPS: 		rl-1016			|	ll-0821
-;---------------------------------------|----------
-;12		Returned: 		rl-1137			|	ll-0914
-;13		Delivered: 		rl-1244			|	ll-0994
-;14		Restocked: 		rl-1355 rr-1468	|	ll-1076 lr-1163
-;----------------------------------------------------------
-
-
+#Region -- Order Trakker Test Vars and Funcs --
 Global $aiOTTabPos[15] = [30]
 Global $aiOTTabNum[15]
 
-Global $asOTNameIndex[15] = ["Dispatch", _
+Global $asOTNameIndex[15] = [ _
+		"Dispatch", _
 		"Warehouse", "Dismantling", "Yard", "Brokered", _
 		"Arrived", "Void", "RdySnd", _
 		"CPU", "Truck", "LTL", "FedEx/UPS", _
-		"Returned", "Delivered", "Restocked"]
+		"Returned", "Delivered", "Restocked" _
+		]
 
 Global $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+Global $aiOTTabCurrentWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
 Global $sLastActiveTab = "Restocked"
 
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
 	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
-	;ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
+	;	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
 	Local $asOTTextMatch
 	If $sLastActiveTab == "CPU" Or $sLastActiveTab == "TCL" Then
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 3), 1)
@@ -797,7 +776,7 @@ Func OTGetActiveTab()
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 4), 1)
 	EndIf
 	Local $sActiveTab = $asOTTextMatch[0]
-	;ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
+	;	ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
@@ -808,48 +787,86 @@ Func OTGetActiveTabIndex()
 	Return $iTabIndex
 EndFunc   ;==>OTGetActiveTabIndex
 
-Func OTGetActiveTabWidth()
+Func OTSetActiveTabNum()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
 	Local $iTabIndex = _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])
-	;ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
-	;ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
+	;	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
+	;	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
 	If $asActiveInfoSplit[0] == 1 Then
-		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
-		Return $aiOTTabBaseWidths[$iTabIndex]
+		;		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
+		$aiOTTabNum[$iTabIndex] = 0
 	Else
 		Local $iTabNum = $asActiveInfoSplit[2]
 		$aiOTTabNum[$iTabIndex] = $iTabNum
-		Local $iOffset = 0
-		If $iTabNum < 10 Then
-			$iOffset = 28
-		Else
-			$iOffset = 36
-		EndIf
-		Return $aiOTTabBaseWidths[$iTabIndex] + $iOffset
+		;		Local $iOffset = 0
+		;		If $aiOTTabNum[$iTabIndex] < 10 Then
+		;			$iOffset = 28
+		;		Else
+		;			$iOffset = 36
+		;		EndIf
+		;		$aiOTTabCurrentWidths[$iTabIndex] = $aiOTTabBaseWidths[$iTabIndex] + $iOffset
 	EndIf
-	Return 0
-EndFunc   ;==>OTGetActiveTabWidth
+EndFunc   ;==>OTSetActiveTabNum
 
-Func OTSwitchToTab($iTabIndex)
+Func OTSwitchToTab($iTargetTabIndex)
 	;ConsoleWrite("Tab Index to Switch to: " & $iTabIndex & @CRLF)
-	If OTGetActiveTabIndex() <> $iTabIndex Then
+	Local $iActiveTabIndex = OTGetActiveTabIndex()
+	If $iActiveTabIndex <> $iTargetTabIndex Then
 		Local $tempTab = OTGetActiveTab()
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTabIndex], 10)
+		;		ConsoleWrite("Target x-pos: " & $aiOTTabPos[$iTargetTabIndex] & @CRLF)
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTargetTabIndex], 10)
 		$sLastActiveTab = $tempTab
 	EndIf
 EndFunc   ;==>OTSwitchToTab
 
-Func OTSetAllTabPos()
-	;start at dispatch
-	Local $iCurTabWidth
+Func OTSetInitialTabPos()
+	OTSetInitialNums()
+	OTUpdatePos()
+EndFunc   ;==>OTSetInitialTabPos
 
-	For $i = 0 To 13
+Func OTSetInitialNums()
+	;	Local $iCurTabWidth
+	For $i = 0 To UBound($aiOTTabPos) - 2
 		OTSwitchToTab($i)
-		$iCurTabWidth = OTGetActiveTabWidth()
-		$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $iCurTabWidth
+		OTSetActiveTabNum()
+		OTUpdatePos()
+		;$iCurTabWidth = $aiOTTabCurrentWidths[$i]
+		;$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $iCurTabWidth
 	Next
-EndFunc   ;==>OTSetAllTabPos
+EndFunc   ;==>OTSetInitialNums
+
+Func OTUpdatePos()
+	Local $iOffset
+	For $i = 0 To UBound($aiOTTabPos) - 2
+		$iOffset = 0
+		If $aiOTTabNum[$i] <> 0 Then
+			If $aiOTTabNum[$i] < 10 Then
+				$iOffset = 28
+			Else
+				$iOffset = 36
+			EndIf
+		EndIf
+
+		$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $aiOTTabBaseWidths[$i] + $iOffset
+		$aiOTTabCurrentWidths[$i] = $aiOTTabBaseWidths[$i] + $iOffset
+
+		;		ConsoleWrite(@CRLF & "$i: " & $i & @CRLF & "$iOffset: " & $iOffset & @CRLF & "$aiOTTabNum[$i]: " _
+		;			& $aiOTTabNum[$i] & @CRLF & "$aiOTTabPos[$i]: " & $aiOTTabPos[$i] & @CRLF & _
+		;			"$aiOTTabPos[$i+1]: " & $aiOTTabPos[$i+1] & @CRLF & "$aiOTTabBaseWidths[$i]: "  &$aiOTTabBaseWidths[$i] & @CRLF & @CRLF)
+	Next
+EndFunc   ;==>OTUpdatePos
+
+Func OTSendPartToTab($iTargetTabIndex)
+	Local $iActiveTabIndex = OTGetActiveTabIndex()
+	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
+
+	$aiOTTabNum[$iActiveTabIndex] -= 1
+	$aiOTTabNum[$iTargetTabIndex] += 1
+	OTUpdatePos()
+EndFunc   ;==>OTSendPartToTab
+
+#EndRegion -- Order Trakker Test Vars and Funcs --
 
 Func TestTrakker()
 	_OpenApp("trak")
@@ -862,52 +879,52 @@ Func TestTrakker()
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
 
-	OTSetAllTabPos()
+	OTSetInitialTabPos()
 
-	Exit
+	_ArrayDisplay($aiOTTabCurrentWidths)
+
 	;Sleep(500)
 
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
+	;the next two tests may not be fully working yet
 
-	;this is not working yet
+	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
+	;Check Warehouse Tab
+	OTSwitchToTab(1)
+	CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
+	OTSendPartToTab(0)
 
-	#comments-start
-		#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
-		;Check Warehouse Tab
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[1], 10)
-		CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
-		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
+	;Check Brokered Tab
+	OTSwitchToTab(4)
+	CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
+	OTSendPartToTab(0)
 
-		;Check Brokered Tab
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[4], 10)
-		CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
-		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
+	;Check Yard Tab
+	OTSwitchToTab(3)
+	CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
+	OTSendPartToTab(0)
+	Sleep(500)
+	#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 
-		;Check Yard Tab
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[3], 10)
-		CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
-		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-0, "primary")
+
+	#Region -- Order Trakker Test 2 - Move each part into every tab
+	OTSwitchToTab(0)
+	CaptureScreen($g_wMain, "", "Part012Dispatch")
+	For $i = 0 To 2
+		OTSwitchToTab(0)
 		Sleep(500)
-		#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
-
-		#Region -- Order Trakker Test 2 - Move each part into every tab
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
-		CaptureScreen($g_wMain, "", "Part012Dispatch")
-		For $i = 0 To 2
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[0], 10)
-		Sleep(500)
-		For $j = 1 to UBound($aiTabPos)-2
-		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiTabPos)-1)-$j, "primary")
-		Sleep(500)
-		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiTabPos[$j], 10)
-		CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
+		For $j = 1 To UBound($aiOTTabPos) - 2
+			OTSendPartToTab($j)
+			Sleep(500)
+			OTSwitchToTab($j)
+			CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
 		Next
-		Next
-		#EndRegion
+	Next
+	#EndRegion -- Order Trakker Test 2 - Move each part into every tab
 
-	#comments-end
+	Exit
 	;TO-DO: figure out how to make Test 1 and 2 work
 
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
@@ -1483,7 +1500,7 @@ ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
 
 
-Exit 1
+Exit 2
 
 #EndRegion --- RUNNING TEST CODE ---
 
