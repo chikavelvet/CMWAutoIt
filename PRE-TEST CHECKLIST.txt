@@ -16,3 +16,4 @@ http://wiki01.car-part.com:8090/display/CMDEV/CMWTestPlan
 	- The correct Password of the Day
 	- 'image' in the second line
 	- A valid stock number and part code (can be same as or different to first two
+- The set-up for Order Trakker is complete (as detailed in the wiki)
