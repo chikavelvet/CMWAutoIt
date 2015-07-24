@@ -45,7 +45,12 @@ Opt("WinDetectHiddenText", 1); 0: don't detect, 1: detect
 Global $g_sPOD; = "BTA"
 
 ;quick ways to reference the various windows, listed in NOTES above
-Global $g_wMain = "[CLASS:TfrmMain_CMW]", $g_wCustomer = "[CLASS:TfrmCustomerUpdate]", $g_wFind = "[CLASS:TfrmFind_Customer]", $g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", $g_wPay = "[CLASS:TfrmPaymentInputBox]", $g_wGadget = "[CLASS:TfrmDashboardSettings]", $g_wMessage = "[CLASS:TAdvMessageForm]", $g_wPassword = "[CLASS:TfrmPassword]", $g_wTerminal = "AlphaCom", $g_wDate = "[CLASS:TfrmEnterDateRange]", $g_wDashSett = "[CLASS:TfrmDashboardSettings]", $g_wPrint = "[CLASS:TPrintpreview]"
+Global 	$g_wMain = "[CLASS:TfrmMain_CMW]", 					$g_wCustomer = "[CLASS:TfrmCustomerUpdate]", _
+		$g_wFind = "[CLASS:TfrmFind_Customer]", 			$g_wExtra = "[CLASS:Tfrm_FindandSell_ExtraSales]", _
+		$g_wPay = "[CLASS:TfrmPaymentInputBox]", 			$g_wGadget = "[CLASS:TfrmDashboardSettings]", _
+		$g_wMessage = "[CLASS:TAdvMessageForm]", 			$g_wPassword = "[CLASS:TfrmPassword]", _
+		$g_wTerminal = "AlphaCom", 							$g_wDate = "[CLASS:TfrmEnterDateRange]", _
+		$g_wDashSett = "[CLASS:TfrmDashboardSettings]", 	$g_wPrint = "[CLASS:TPrintpreview]"
 
 ;this is the default file with log-in information
 ;TO-DO: Maybe make an AutoIt GUI set-up to create this file and input all relevant information
@@ -77,18 +82,20 @@ Func Terminate()
 	Exit
 EndFunc
 
+HotKeySet("{Esc}", "_EndProg")
+
 #comments-start
 
 	-- _EndProg --
 	This function is set up by OnAutoItExitRegister to run when AutoIt exits.
 	A normal Exit command (@exitCode of 0) will simply cause a display message
 	to come up stating the script has ended.
-	Exit 1 (@exitCode of 1) will cause the same message box to appear, but also
+	Exit 2 (@exitCode of 2) will cause the same message box to appear, but also
 	will close the CMW Main window.
 
 #comments-end
 Func _EndProg()
-	If @exitCode = 1 Then; if the flag is set to 1
+	If @exitCode = 2 Then; if the flag is set to 1
 		WinClose($g_wMain); close the main CMW window
 	EndIf
 	MsgBox(0, "Script Execution Notification", "Script has ended."); notify that the script is ending
@@ -124,7 +131,7 @@ Func _UpdateWS()
 			$sUpgradePrefix = "qaupgrade"
 		Case Else
 			MsgBox(0, "Error", "Invalid CMW Type (check cmwautoupdate.ini)")
-			Exit 1
+			Exit 2
 	EndSwitch
 
 	;wait for update window
@@ -176,7 +183,7 @@ Func _UpdateWS()
 	;if the executable isn't there after the 5 minute loop, throw error
 	If Not FileExists($sExecutablePath) Then
 		MsgBox(0, "File not Found", "Download did not complete or took longer than five minutes. Please retry.")
-		Exit 1
+		Exit 2
 	EndIf
 
 	;run the executable
@@ -222,7 +229,7 @@ Func LogIn($fiLoginFile = $g_fiDefaultLoginFile)
 		ControlClick($g_wPassword, "", "TBitBtn2")
 	Else
 		MsgBox(0, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
-		Exit 1
+		Exit 2
 	EndIf
 EndFunc
 
@@ -465,6 +472,8 @@ EndFunc   ;==>TermTextWait
 
 #comments-end
 Func CaptureScreen($hTitle = $g_wMain, $sName = Null, $fiSubDir = Null, $fiAltDir = Null)
+
+	Sleep(500)
 
 	If Not FileExists(@AppDataDir & "\AutoIt\Screen Captures") Then
 		DirCreate(@AppDataDir & "\AutoIt\Screen Captures")
