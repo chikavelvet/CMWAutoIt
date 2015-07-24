@@ -1222,8 +1222,8 @@ Func TestReports()
 	WinClose("Invoices by Customer")
 
 	#EndRegion -- Reports Test 3 - Test a few different reports -done
-
-	ControlClick($g_wMain, "", "TAdvGlowButton15")
+	Exit
+	ControlClick($g_wMain, "", "TAdvGlowButton21")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
 		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
@@ -1335,7 +1335,7 @@ ConsoleWrite(TestImaging() & @CRLF)
 ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
-ConsoleWrite(TestSettings() & @CRLF)
+;ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 1
 
