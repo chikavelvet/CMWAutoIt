@@ -17,6 +17,24 @@
 	Reference (CMW Test Plan):
 	http://wiki01.car-part.com:8090/display/CMDEV/CMWTestPlan
 
+	--- BEFORE STARTING TEST MAKE SURE THE FOLLOWING IS DONE ---
+	- No tabs are set to open on start-up
+	- Only the first gadget (Uninventoried Vehicles) is checked in Dashboard
+	- No lock timeout is set up
+	- The CMWTest.csv file has:
+		- A valid Yard Owner username and password
+		- The correct Password of the Day
+		- A valid stock number and part code
+		- A valid CFT file path for Alphacom
+		- A valid stock number and part code (can be same as or different to first one)
+	- The CMWTestInvLogin.csv file has:
+		- A valid Inventory-only username and password
+		- The correct Password of the Day
+		- 'image' in the second line
+		- A valid stock number and part code (can be same as or different to first two
+
+	(This information is also in "PRE-TEST CHECKLIST.txt")
+
 #comments-end
 
 #include <Header.au3>
@@ -731,6 +749,13 @@ Func TestTerminal()
 	#EndRegion -- Terminal Test 3 - verify that alphacom opens in both of 2 separate CMWs -done
 
 	WinClose($g_wMain)
+	WinWait($g_wMessage, "Never ask again", 5)
+	If WinExists($g_wMessage) Then
+		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
+		ControlClick($g_wMessage, "", "TAdvGlowButton1")
+	EndIf
+	Sleep(500)
+	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
 	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	;ConsoleWrite("Found the Find and Sell; No Problemo 2" & @CRLF)
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
@@ -838,8 +863,6 @@ EndFunc   ;==>ImageTest123
 
 
 Func TestImaging()
-	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("image")
 
 	ImageTest123()
