@@ -775,44 +775,81 @@ EndFunc   ;==>TestTerminal
 
 
 Global $aiOTTabPos[15] = [30]
+Global $aiOTTabNum[15]
 
-Global $asOTNameIndex[15] = 	["Dispatch", _
-								"Warehouse", "Dismantling", "Yard", "Brokered", _
-								"Arrived", "Void", "RdySnd", _
-								"CPU", "Truck", "LTL", "FedEx/UPS", _
-								"Returned", "Delivered", "Restocked"]
+Global $asOTNameIndex[15] = ["Dispatch", _
+		"Warehouse", "Dismantling", "Yard", "Brokered", _
+		"Arrived", "Void", "RdySnd", _
+		"CPU", "Truck", "LTL", "FedEx/UPS", _
+		"Returned", "Delivered", "Restocked"]
 
-Global $aiOTTabBaseWidths[15] = [80,94,100,59,78,66,59,68,60,60,60,93,79,83,88]
+Global $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
 Global $sLastActiveTab = "Restocked"
 
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
-	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTText & @CRLF)
-	Local $asOTTextMatch = StringRegExp($sOTText, "Dispatch(?s)(.*)" & $sLastActiveTab, 1)
-	Local $sActiveTab = StringStripWS($asOTTextMatch[0], 8)
+	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
+	;ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
+	Local $asOTTextMatch
+	If $sLastActiveTab == "CPU" Or $sLastActiveTab == "TCL" Then
+		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 3), 1)
+	Else
+		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 4), 1)
+	EndIf
+	Local $sActiveTab = $asOTTextMatch[0]
+	;ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
-
+Func OTGetActiveTabIndex()
+	Local $sActiveTab = OTGetActiveTab()
+	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
+	Local $iTabIndex = _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])
+	Return $iTabIndex
+EndFunc   ;==>OTGetActiveTabIndex
 
 Func OTGetActiveTabWidth()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
-	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
-	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
+	Local $iTabIndex = _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])
+	;ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
+	;ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
 	If $asActiveInfoSplit[0] == 1 Then
-		ConsoleWrite("ArraySearch: " & _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1]) & @CRLF)
-		Return $aiOTTabBaseWidths[_ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])]
-		;OTSetTabPos($asActiveInfoSplit[1], 0)
+		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
+		Return $aiOTTabBaseWidths[$iTabIndex]
+	Else
+		Local $iTabNum = $asActiveInfoSplit[2]
+		$aiOTTabNum[$iTabIndex] = $iTabNum
+		Local $iOffset = 0
+		If $iTabNum < 10 Then
+			$iOffset = 28
+		Else
+			$iOffset = 36
+		EndIf
+		Return $aiOTTabBaseWidths[$iTabIndex] + $iOffset
 	EndIf
 	Return 0
-EndFunc
+EndFunc   ;==>OTGetActiveTabWidth
 
 Func OTSwitchToTab($iTabIndex)
-	Local $tempTab = OTGetActiveTab()
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTabIndex - 1] + OTGetActiveTabWidth(), 10)
-	$sLastActiveTab = $tempTab
+	;ConsoleWrite("Tab Index to Switch to: " & $iTabIndex & @CRLF)
+	If OTGetActiveTabIndex() <> $iTabIndex Then
+		Local $tempTab = OTGetActiveTab()
+		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTabIndex], 10)
+		$sLastActiveTab = $tempTab
+	EndIf
 EndFunc   ;==>OTSwitchToTab
+
+Func OTSetAllTabPos()
+	;start at dispatch
+	Local $iCurTabWidth
+
+	For $i = 0 To 13
+		OTSwitchToTab($i)
+		$iCurTabWidth = OTGetActiveTabWidth()
+		$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $iCurTabWidth
+	Next
+EndFunc   ;==>OTSetAllTabPos
 
 Func TestTrakker()
 	_OpenApp("trak")
@@ -823,9 +860,10 @@ Func TestTrakker()
 	WEnd
 	Local $posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	ConsoleWrite(OTGetActiveTabWidth() & @CRLF)
-	OTSwitchToTab(1)
-	ConsoleWrite(OTGetActiveTabWidth() & @CRLF)
+
+
+	OTSetAllTabPos()
+
 	Exit
 	;Sleep(500)
 
