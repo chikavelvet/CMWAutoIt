@@ -229,7 +229,7 @@ Func TestSettings()
 
 	#Region -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 	;use the CMWTestInvLogin csv file to reopen CMW and log in as a user with only inventory rights
-	;TO-DO: (maybe) make a user with these rights rather than forcing tester to have one ready
+	;TO-DO: (maybe) make a user with these rights via script rather than forcing tester to have one ready
 	;TO-DO: combine CMWTestInvLogin.csv with CMWTest.csv (so everything's in one file)
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTestInvLogin.csv")
 	
@@ -252,18 +252,26 @@ Func TestSettings()
 	#EndRegion -- Settings Test 5 - Try to open dashboard, get no data
 
 	#Region -- Settings Test 6 - Try to open eBay, get security error
+	;open eBay tab (doesn't use OpenApp() because it wouldn't finish due to the tab never fully opening)
+	;TO-DO: (potentially) modify OpenApp to not cause this problem
 	ControlClick($g_wMain, "", "TAdvGlowButton9", "primary")
+	;wait for security error window
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 10)
 	CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
 
 	#EndRegion -- Settings Test 6 - Try to open eBay, get security error
 
 	#Region -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
+	;re-open workstation and log in using the normal CMWTest.csv (Yard Owner) account
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
+	;open Dashboard tab
 	_OpenApp("dash")
+	;see notes above (in Settings Test 5 region) on WaitForUpdating()
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "YODashboard", "SettingsTest")
 
+	;close Dashboard tab
+	;TO-DO: make a CloseTab() function that does this stuff)  
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -272,7 +280,9 @@ Func TestSettings()
 		Sleep(100)
 	EndIf
 
+	;open eBay app
 	_OpenApp("ebay")
+	;wait for a recurring eBay error I've been getting (cannot connect to ebay)
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 10)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
@@ -282,6 +292,7 @@ Func TestSettings()
 
 	Sleep(10000)
 
+	;close eBay tab
 	ControlClick($g_wMain, "", "TAdvGlowButton25")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -294,18 +305,24 @@ Func TestSettings()
 	#EndRegion -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
 
 	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
+	;open Imaging app (this does not use OpenApp(), see Settings Test 6 for details)
 	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
+	
+	;wait for security error and if/when it shows up, take a screenshot close the window
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 15)
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
-	ConsoleWrite("Got here" & @CRLF)
+
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
+	;open up the CMW setup menu (try again every 5 minutes if it doesn't open)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
+	;Ctrl+Tab to the 'additional' settings menu
 	Send("^{Tab 5}")
+	;set the timeout to 3 minutes
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
