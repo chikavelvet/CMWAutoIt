@@ -1,4 +1,5 @@
 #comments-start
+
 	All script by Trey Gonsoulin unless otherwise noted.
 
 	--- NOTES ---
@@ -54,13 +55,17 @@ Func MinusSeven(ByRef $tDateArray)
 	$tDateArray[2] = $D
 EndFunc   ;==>MinusSeven
 
-
+;initializing today's date (MDY) and copying it to another variable (to be -7'd)
 Local $tDateToday = [@MON, @MDAY, @YEAR]
 Local $tDateMinusSeven = $tDateToday
+
+;subtracting seven days from today's date
 MinusSeven($tDateMinusSeven)
+
+;putting dates into formatted strings (from arrays) for use in Reports test
+;TO-DO: this overlaps with things done in Dashboard test, so try to somehow combine them
 $tDateToday = $tDateToday[2] & "-" & $tDateToday[0] & "-" & $tDateToday[1]
 $tDateMinusSeven = $tDateMinusSeven[0] & "-" & $tDateMinusSeven[1] & "-" & $tDateMinusSeven[2]
-ConsoleWrite($tDateToday & @CRLF & $tDateMinusSeven & @CRLF)
 
 #comments-start
 
@@ -97,6 +102,26 @@ EndFunc   ;==>TerminalOpenLogin
 
 #Region --- SETTINGS TEST FUNCTION ---
 
+#comments-start
+
+-- AccessCMWToolbar --
+This function uses a single controlled click and regular input to access any
+of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
+and any of the subitems in these three categories. The function uses a zero-based
+three dimensional indexing system, though the third dimension is optional, and
+only used in Settings->Security, which then has more options to choose from.
+
+- $i, $j, $k: Integers -
+These three integer inputs form a three dimensional coordinate that determines
+what specific toolbar function to access. The first value determines whether
+to open File, Settings, or Help initially; the second value determines which 
+subitem to go to and open; and the third (optional) value is used if the subitem
+in turn presents multiple subitems to access (only currently found in Settings->Security).
+
+Note: the $k value is defaulted to zero, but also not used unless $i and $j both
+are equal to 1 (Setting->Security case). 
+
+#comments-end
 Func AccessCMWToolbar($i, $j, $k = 0)
 	Local $iXOff
 	Switch $i
@@ -122,54 +147,106 @@ EndFunc   ;==>AccessCMWToolbar
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+	
+	;Open up Security for Dashboard menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for Dashboard")
 		AccessCMWToolbar(1, 1, 0)
 		WinWait("Security for Dashboard", "", 5)
 	WEnd
-
+	
+	;Down 3 Up 1 puts the selection highlight on the first input box
+	;set first input box to 1
 	Send("{Down 3}{Up}1")
+	
+	;Set all Dashboard gadget securities to 1 (Yard Owner)
 	For $i = 0 To 24
 		Send("{Down}1")
 	Next
+	;OK button
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
-	;Exit
+
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for Dashboard")
+		AccessCMWToolbar(1, 1, 0)
+		WinWait("Security for Dashboard", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "DashboardSecurity", "SettingsTest")
+	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
+	
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
 
 	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
+	;Open up Security for eBay menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for eBay")
 		AccessCMWToolbar(1, 1, 1)
 		WinWait("Security for eBay", "", 5)
 	WEnd
 
+	;Down 3 Up 1 puts the selection highlight on the first input box
+	;set first input box to 1
 	Send("{Down 3}{Up}1")
+	;set second input box to 2,3 (sales, sales manager)
 	Send("{Down}2,3")
+	;OK button
 	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
+	
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for eBay")
+		AccessCMWToolbar(1, 1, 1)
+		WinWait("Security for eBay", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "eBaySecurity", "SettingsTest")
 
 	#EndRegion -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
 	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
+	;Open up Security for Imaging menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for CMIS")
 		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
+	;Imaging security menu only has one box, so Down 3 Up 1 doesn't work
+	;use controlclick to select the first/only input box
+	;TO-DO: see if there's a more stable way to select this (via keyboard)
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
+	;set first/only input box to 5,6 (inventory, inventory manager)
 	Send("5,6")
+	;OK Button
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
+	
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for CMIS")
+		AccessCMWToolbar(1, 1, 2)
+		WinWait("Security for CMIS", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "ImagingSecurity", "SettingsTest")
 
 	#EndRegion -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
 	#Region -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
+	;use the CMWTestInvLogin csv file to reopen CMW and log in as a user with only inventory rights
+	;TO-DO: (maybe) make a user with these rights rather than forcing tester to have one ready
+	;TO-DO: combine CMWTestInvLogin.csv with CMWTest.csv (so everything's in one file)
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTestInvLogin.csv")
+	
+	;run the first 3 tests in the Imaging Test (sufficient for checking if user privileges is working) 
 	ImageTest123("SettingsTest")
 
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 
 	#Region -- Settings Test 5 - Try to open dashboard, get no data
+	;Open the Dashboard tab
 	_OpenApp("dash")
+	;wait for any open dashboard gadgets to update
+	;Note: Settings Test should be performed after Dashboard Test so that the resulting randomly opened
+	;gadgets from the dashboard test work to sufficiently test user privileges in the Settings Test
+	;Note 2: WaitForUpdating has a bug and may not work completely as intended (only waits for first gadget)
+	;Note 3: Even if user does not have correct privileges, CMW still allows them to open up the Dashboard
+	;tab, but every gadget's information is blank. I am unsure if this is intended behavior or not
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "NotYODashboard", "SettingsTest")
 	#EndRegion -- Settings Test 5 - Try to open dashboard, get no data
