@@ -320,39 +320,52 @@ Func TestSettings()
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
+	
 	;Ctrl+Tab to the 'additional' settings menu
 	Send("^{Tab 5}")
+	
 	;set the timeout to 3 minutes
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
+	
+	;save settings
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	
+	;this will wait for the timeout (350 seconds, though it will stop waiting upon 3 minute timeout)
+	;it will then re-log back in to CMW
+	;the first part works fine, the second part has some issues
 	;	WinWaitNotActive($g_wMain, "", 350)
 	;	ConsoleWrite("Not active" & @CRLF)
 	;	WinActivate($g_wPassword)
 	;	WinSetState($g_wPassword, "", @SW_SHOW)
 	;	WinActivate($g_wMain)
 	;Requires user input here
-	;TO-GO: make it not require user input
-
-	LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
+	;TO-DO: make it not require user input
+	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
 	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 
 	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
+	;open Security for Imaging (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for CMIS")
 		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
+	;set imaging security up to work for Yard Owner again, so it doesn't give security error when it opens
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
 	Send("1,5,6")
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
 
+	;open up CMW Setup menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
-
+	
+	;Ctrl+Tab to Tab Setup menu
 	Send("^{Tab 4}")
+	
+	;randomly check tabs to start up
 	For $i = 0 To 6
 		Send("{Tab}")
 		If Random(0, 1, 1) = 1 Then
@@ -363,14 +376,17 @@ Func TestSettings()
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
+	;open WS to see if proper tabs show up
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
-
+	;wait for and deal with eBay error message
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
 	EndIf
 	WinActivate($g_wMain)
+	
+	;'waits' until it can open setup menu (all apps are finished loading)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
@@ -380,6 +396,7 @@ Func TestSettings()
 
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
+	;open up Setup menu, go to tab setup, and invert all checkboxes	
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
@@ -395,8 +412,8 @@ Func TestSettings()
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
+	;open WS to see if proper tabs show up, deal with eBay error, wait until setup menu can open
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
-
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
@@ -409,7 +426,6 @@ Func TestSettings()
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-
 	CaptureScreen($g_wMain, "RandomTabsOpened2", "SettingsTest")
 
 	#EndRegion -- Settings Test 10 - Set different tools to open automatically, verify they do so
