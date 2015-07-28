@@ -412,7 +412,7 @@ Func TestSettings()
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
-	;open WS to see if proper tabs show up, deal with eBay error, wait until setup menu can open
+	;open WS to see if proper tabs show up, deal with eBay error if it happens, wait until setup menu can open
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
@@ -431,11 +431,13 @@ Func TestSettings()
 	#EndRegion -- Settings Test 10 - Set different tools to open automatically, verify they do so
 
 	#Region -- Settings Test 11 - Edit printer settings
+	;open CMW setup menu (try again every 5 seconds if it doesn't open)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
+	;Ctrl+Tab over to printer settings, change the RPT printer to be one down from what it is
 	Send("^{Tab 3}")
 	;ControlClick("Setup", "", "Edit5", "primary")
 	ControlSend("Setup", "", "Edit5", "{Down}")
@@ -497,6 +499,44 @@ Func WaitForNewGadget(ByRef $sCurStat, $wWindow = $g_wMain, $idStatBar = "TStatu
 	$sCurStat = ControlGetText($wWindow, "", $idStatBar)
 EndFunc   ;==>WaitForNewGadget
 
+#comments-start
+	
+	-- WaitForUpdating --
+	This function waits for all active dashboard gadgets to
+	finish updating. It does this by looking for the string
+	"Updating" in the window.
+	
+	- $tExtraWait: Integer -
+	This parameter introduces an additional amount of constant
+	wait time to the end of the function. The input value is
+	in seconds (for convenience). The default wait time is .1
+	seconds.
+	
+	- $wWindow: Window -
+	This parameter specifies a specific window to look in when
+	looking for "Updating". By default (and in all current use
+	cases) it is set to the main CMW window. 
+	
+	Note: This function has a bug because it only looks at the
+	first gadget's updating text. So if the first gadget loads
+	before any of the other on-screen gadgets, the function will
+	not work as intended. There may be a way to fix this via more
+	in-depth string analysis (and potentially regex) but with the
+	extra wait time functionality it hasn't become too much of 
+	a problem and I have yet to look into it fully.
+	
+	Note 2: There are multiple cases in these tests (and more
+	potential future cases) in which pausing the script while
+	a certain string is present in the window is useful. Therefore
+	this function could be modified (or a new one created) to
+	more generally search a window for a specified string and
+	wait for the string to not be present.
+	(modifying this function would take a change of only a few words)
+	It also may be useful to make a second function that does 
+	the opposite, waiting until the string is present (already
+	somewhat implemented in TermTextWait.)
+	
+#comments-end
 Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 	While StringInStr(WinGetText($wWindow), "Updating")
 		Sleep(250)
