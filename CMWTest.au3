@@ -545,8 +545,12 @@ Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
+	;maximize window (does nothing if already maximized)
 	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	
+	;open dashboard
 	_OpenApp("dash")
+	
 	Local $sCurrentStatus
 
 	ControlFocus($g_wMain, "Dashboard", "TAdvToolBar2")
@@ -554,12 +558,18 @@ Func TestDashboard()
 	#Region -- Dashboard Test 1 - Turn on all gadgets -done
 	Sleep(1000)
 	$sCurrentStatus = ControlGetText($g_wMain, "", "TStatusBar1")
+	
+	;first, ensure the date is a single day by setting the date to today
+	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
+	;click 'today' button
 	ControlClick($g_wDate, "", "TButton1")
 	WaitForUpdating()
 	Sleep(200)
 	CaptureScreen($g_wMain, "GadgetTest1", "DashboardTest")
+	;open up gadget settings menu and activate each gadget, one at a time
+	;take screenshots after the gadget loads
 	For $i = 0 To 24
 		ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 		WinWait($g_wGadget)
@@ -590,6 +600,7 @@ Func TestDashboard()
 	;Exit
 	#EndRegion -- Dashboard Test 1 - Turn on all gadgets -done
 
+	;reset open gadgets to just be "uninventoried vehicles"
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -600,27 +611,36 @@ Func TestDashboard()
 	#Region -- Dashboard Test 2 - Set date for 7 days -done
 	;TO-DO: Skip gadgets that don't use date range
 	WaitForNewGadget($sCurrentStatus)
+	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
-
+	
+	;click "today" to ensure it's set to today's date initially
 	ControlClick($g_wDate, "Date Range", "TButton1", "primary")
+	
+	;reopen date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
 
+	;check the date range checkbox
 	ControlCommand($g_wDate, "Date Range", "TCheckBox1", "Check", "")
 
+	;calculate today's date (formatted) and the date seven days ago
 	Local $tDateArrayMDY = StringSplit(ControlGetText($g_wDate, "Date Range", "TDateTimePicker2") & @CRLF, "/", 2)
 	MinusSeven($tDateArrayMDY)
+	;set the date fields to match the calculated values
 	ControlClick($g_wDate, "Date Range", "TDateTimePicker1", "primary")
 	ControlSend($g_wDate, "Date Range", "TDateTimePicker1", "{Right 2}" & $tDateArrayMDY[2])
 	;Exit
 	ControlClick($g_wDate, "", "TBitBtn1", "primary")
-
+	
+	;wait for gadgets to update with new date range
 	WaitForUpdating()
 	Sleep(100)
 
 	CaptureScreen($g_wMain, "Gadget7DaysTest", "DashboardTest")
-
+	
+	;cycle through every gadget again, this time with the new date range
 	For $i = 0 To 24
 		ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 		WinWait($g_wGadget)
@@ -652,6 +672,7 @@ Func TestDashboard()
 	#EndRegion -- Dashboard Test 2 - Set date for 7 days -done
 
 	;Exit
+	;reset open gadgets back to only "uninventoried vehicles"
 	Sleep(250)
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
@@ -665,6 +686,7 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 4 - Display Only WO for "NameLoggedIn" -done
 
+	;open a couple WO related gadgets
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -676,9 +698,12 @@ Func TestDashboard()
 	WaitForUpdating(.5)
 
 	CaptureScreen($g_wMain, "WOs_ALL", "DashboardTest")
+
+	;change setting to only view WOs by active user
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!si")
 	WaitForUpdating(.5)
 	CaptureScreen($g_wMain, "WOs_(" & $g_sUserName & ")", "DashboardTest")
+	;change it back
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!si")
 	WaitForUpdating(.5)
 
@@ -689,6 +714,7 @@ Func TestDashboard()
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 
+	;open some more gadgets (first two)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -697,6 +723,7 @@ Func TestDashboard()
 	WaitForNewGadget($sCurrentStatus)
 	WaitForUpdating(1)
 
+	;expand and contract the first two gadgets on the screen
 	CaptureScreen($g_wMain, "ExpandGadget(Before)", "DashboardTest")
 	ControlClick($g_wMain, "", "TButton1")
 	Sleep(250)
