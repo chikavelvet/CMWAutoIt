@@ -962,9 +962,14 @@ EndFunc   ;==>TestTerminal
 #Region --- ORDER TRAKKER TEST FUNCTION ---
 
 #Region -- Order Trakker Test Vars and Funcs --
+;NOTE: These variables and functions are deprecated.
+
+;an array of valid pixel positions to click to access each tab (updates)
 Global $aiOTTabPos[15] = [30]
+;an array of the number of parts in each tab (updates)
 Global $aiOTTabNum[15]
 
+;an array of each tab's name, used to look-up a tab index based on name
 Global $asOTNameIndex[15] = [ _
 		"Dispatch", _
 		"Warehouse", "Dismantling", "Yard", "Brokered", _
@@ -973,10 +978,23 @@ Global $asOTNameIndex[15] = [ _
 		"Returned", "Delivered", "Restocked" _
 		]
 
-Global $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;a constant array of the base widths of each tab
+Global Const $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;an array of the currect widths of each tab (deprecated, updated)
 Global $aiOTTabCurrentWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;a string denoting the last active tab (for regex search purposes)
 Global $sLastActiveTab = "Restocked"
 
+#comments-start
+
+	-- OTGetActiveTab --
+	This function gets the name and number of parts in the active tab. It does
+	this primarily through getting the text of the window, stripping it of all
+	whitespace and carriage returns, and using REGEX to look for where the name
+	of the active tab must be (between "Dispatch" and the last active tab name).
+	It returns this as a string.
+
+#comments-end
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
 	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
@@ -992,6 +1010,14 @@ Func OTGetActiveTab()
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
+#comments-start
+
+	-- OTGetActiveTabIndex --
+	This function uses OTGetActiveTab() to find the active tab's name, and then
+	checks it against $asOTNameIndex to see what the index number of the active
+	tab is. It returns this as an integer.
+
+#comments-end
 Func OTGetActiveTabIndex()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
@@ -999,6 +1025,13 @@ Func OTGetActiveTabIndex()
 	Return $iTabIndex
 EndFunc   ;==>OTGetActiveTabIndex
 
+#comments-start
+
+	-- OTSetActiveTabNum --
+	This function uses OTGetActiveTab() to get the number of parts
+	in the active tab. It then updates the $aiOTTabNum array accordingly.
+
+#comments-end
 Func OTSetActiveTabNum()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
@@ -1011,16 +1044,20 @@ Func OTSetActiveTabNum()
 	Else
 		Local $iTabNum = $asActiveInfoSplit[2]
 		$aiOTTabNum[$iTabIndex] = $iTabNum
-		;		Local $iOffset = 0
-		;		If $aiOTTabNum[$iTabIndex] < 10 Then
-		;			$iOffset = 28
-		;		Else
-		;			$iOffset = 36
-		;		EndIf
-		;		$aiOTTabCurrentWidths[$iTabIndex] = $aiOTTabBaseWidths[$iTabIndex] + $iOffset
 	EndIf
 EndFunc   ;==>OTSetActiveTabNum
 
+#comments-start
+
+	-- OTSwitchToTab --
+	This function uses the $aiOTTabPos array and ControlClick() to switch tabs.
+	It only attempts the tab switch if the active tab is not the same as the tab
+	to switch to. After switching tabs, it updates $sLastActiveTab.
+	
+	- $iTargetTabIndex: Integer -
+	This parameter is an integer denoting the index of the target tab.
+
+#comments-end
 Func OTSwitchToTab($iTargetTabIndex)
 	;ConsoleWrite("Tab Index to Switch to: " & $iTabIndex & @CRLF)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
@@ -1032,11 +1069,34 @@ Func OTSwitchToTab($iTargetTabIndex)
 	EndIf
 EndFunc   ;==>OTSwitchToTab
 
+#comments-start
+
+	-- OTSetInitialTabPos --
+	This function is a function run at the beginning of the test to set the
+	initial positions of the tabs based on tab number. After this, the position
+	array automatically updates when it needs to, so repeating this function
+	is unnecessary. However, this function could be run at any time to accurately
+	update the tab positions.
+	
+	Note: This function is redundant, and could be removed. It is also deprecated.
+
+#comments-end
 Func OTSetInitialTabPos()
 	OTSetInitialNums()
 	OTUpdatePos()
 EndFunc   ;==>OTSetInitialTabPos
 
+#comments-start
+
+	-- OTSetInitialNums --
+	This function updates the tab numbers (number of parts in the tab) of every
+	tab initially. After running this function once at the beginning, tab numbers
+	are updated as they are changed, so repeating this function is unnecessary. 
+	However, this function can be run at any time to update all tab numbers.
+	This function also calls OTUpdatePos() after setting each tab numbers,
+	which effectively updates all tab positions as well.
+
+#comments-end
 Func OTSetInitialNums()
 	;	Local $iCurTabWidth
 	For $i = 0 To UBound($aiOTTabPos) - 2
@@ -1048,6 +1108,16 @@ Func OTSetInitialNums()
 	Next
 EndFunc   ;==>OTSetInitialNums
 
+#comments-start
+
+	-- OTUpdatePos --
+	This function is the heart of the tab tracking system. It goes through
+	the $aiOTTabPos array, and for each index calculates the position of the
+	next index based on the current tab's position, tab width, and tab number.
+	(The first tab position is initialized to 30, which isn't affected by any
+	tab numbers.) 
+
+#comments-end
 Func OTUpdatePos()
 	Local $iOffset
 	For $i = 0 To UBound($aiOTTabPos) - 2
@@ -1069,6 +1139,17 @@ Func OTUpdatePos()
 	Next
 EndFunc   ;==>OTUpdatePos
 
+#comments-start
+
+	-- OTSendPartToTab --
+	This function sends the top part (or part selected) in the active tab
+	to another tab specified by the parameter. It then updates both tabs'
+	tab numbers, and updates the position of all tabs accordingly.
+	
+	- $iTargetTabIndex: Integer -
+	This variable holds the index of the targetted tab for the part move.
+
+#comments-end
 Func OTSendPartToTab($iTargetTabIndex)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
 	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
