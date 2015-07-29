@@ -1238,6 +1238,19 @@ EndFunc   ;==>TestTrakker
 
 #Region --- IMAGING TEST FUNCTION ---
 
+#comments-start
+
+	-- ImageTest123 --
+	This function completes the first three Imaging tests. It is a separate
+	function because it is useful during the Settings Test as well as the 
+	Imaging Test (and it would be wasteful to write the code twice).
+	
+	- $sTestSubDir: String -
+	This parameter designates what subfolder to save any captured screenshots
+	in. By default, it's set to "ImagingTest", but it is useful to set it to
+	"SettingsTest" for use during the Settings Test.
+
+#comments-end
 Func ImageTest123($sTestSubDir = "ImagingTest")
 	#Region -- Imaging Test 1 - Look up a stock number -done
 	Local $sLoginFileImagingLine = $g_asNonDefaultLogin[2]
@@ -1691,8 +1704,6 @@ Func TestReports()
 	Return "Reports Test Complete"
 
 EndFunc   ;==>TestReports
-
-
 
 #EndRegion --- REPORTS TEST FUNCTION ---
 
