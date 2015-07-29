@@ -740,35 +740,50 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 6 - Change columns to display -done
 	WaitForUpdating(.5)
+	
+	;right click on grid, go down to column display options
+	;TO-DO: Change this to a Ctrl+F10 statement
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(100)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
+	
+	;deselect the first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
+	
+	;update grid and screenshot
 	WaitForUpdating(1)
 	CaptureScreen($g_wMain, "DisplayColumnsChanged", "DashboardTest")
 	Sleep(100)
+	
+	;re-open column display options
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(100)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
+	
+	;re-select first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
+	
+	;update grid
 	WaitForUpdating(1)
 
 
 	#EndRegion -- Dashboard Test 6 - Change columns to display -done
 
 	#Region -- Dashboard Test 7 - Show details for WO -done
+	;this works more or less but seems to fail depending on the workstation environment
+	;(it works on a normal-type workstation with data, but not on some QA-types)
 	#comments-start
 		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 		Sleep(200)
@@ -806,30 +821,37 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 3 - Verify resizing -done
 
+	;open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
+	
+	;within the first 12 gadgets, randomly select/deselect them
 	For $i = 0 To 12
 		If Random(0, 1, 1) = 1 Then
 			ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 		EndIf
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	Next
-
-
 	ControlClick($g_wGadget, "", "TBitBtn2")
 	Sleep(250)
+	
+	;wait for updating/resizing
 	WaitForUpdating()
 	Sleep(100)
 	CaptureScreen($g_wMain, "Resize", "DashboardTest")
 
+	;re-open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
+	
+	;within the first 12 gadgets, invert each gadget's selection
 	For $i = 0 To 12
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wGadget, "", "TBitBtn2")
 
+	;wait for updating/resizing
 	WaitForUpdating()
 	Sleep(100)
 
@@ -837,6 +859,7 @@ Func TestDashboard()
 
 	#EndRegion -- Dashboard Test 3 - Verify resizing -done
 
+	;close dashboard
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -853,6 +876,20 @@ EndFunc   ;==>TestDashboard
 
 #Region --- TERMINAL TEST FUNCTION ---
 
+#comments-start
+
+	-- CheckTermSettings --
+	This function is designed to check the terminal settings tab in the CMW setup
+	menu, and make sure the connection file is correct. By default, it checks it
+	against the global $g_fiDefaultConnectionFile, but a parameter can be passed
+	in to make it check against the parameter. In the CMWTest, the file to use
+	as the connection file is specified in the CMWTest.csv.
+	
+	- $fiConnectionFile: File Path -
+	This specifies a file path to use for the AlphaCom connection file (should be
+	a valid connection file.) Default is the $g_fiDefaultConnectionFile. 
+
+#comments-end
 Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
