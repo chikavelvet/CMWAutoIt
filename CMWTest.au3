@@ -1278,10 +1278,11 @@ Func TestTrakker()
 	For $i = 0 To 2
 		nOTSwitchToTab(0)
 		Sleep(500)
-		For $j = 1 To UBound($aiOTTabPos) - 2
+		For $j = 0 To UBound($aiOTTabPos) - 2
 			nOTSendPartToTab($j)
 			Sleep(500)
 			nOTSwitchToTab($j)
+			Sleep(500)
 			CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
 		Next
 	Next
@@ -1864,10 +1865,10 @@ EndFunc   ;==>TestEbay
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
 ;ConsoleWrite(TestDashboard() & @CRLF)
-ConsoleWrite(TestTerminal() & @CRLF)
-ConsoleWrite(TestImaging() & @CRLF)
-ConsoleWrite(TestReports() & @CRLF)
-;ConsoleWrite(TestTrakker() & @CRLF)
+;ConsoleWrite(TestTerminal() & @CRLF)
+;ConsoleWrite(TestImaging() & @CRLF)
+;ConsoleWrite(TestReports() & @CRLF)
+ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
 ;ConsoleWrite(TestSettings() & @CRLF)
 
