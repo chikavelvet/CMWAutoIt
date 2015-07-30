@@ -303,7 +303,7 @@ Func _OpenWS($fiLoginFile = $g_fiDefaultLoginFile, $asApps = Null, $bKillOpen = 
 
 ;	ConsoleWrite("About to run" & @CRLF)
 ;	ConsoleWrite($fiProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
-	Run($fiProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
+	Run($fiProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe", "", @SW_MAXIMIZE)
 ;	ConsoleWrite("Ran" & @CRLF)
 	LogIn($fiLoginFile)
 

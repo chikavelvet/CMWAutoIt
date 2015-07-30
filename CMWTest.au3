@@ -110,7 +110,8 @@ Func TerminalOpenLogin($hWnd = "[CLASS:AfxFrameOrView80]")
 		Send("!es")
 	WEnd
 
-	Send($g_sUserPwd & "{Enter}")
+	ConsoleWrite($g_sUserPwd & @CRLF)
+	Send("{CAPSLOCK ON}" & StringLower($g_sUserPwd) & "{Enter}")
 
 	If TermTextWait($g_wTerminal, "Ready", $hWnd, "Find and Sell") = -1 Then
 		MsgBox(0, "No Find and Sell Found", "Something went wrong.")
@@ -564,7 +565,7 @@ EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
 	;maximize window (does nothing if already maximized)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 
 	;open dashboard
 	_OpenApp("dash")
@@ -925,7 +926,7 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	#Region -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 	CheckTermSettings($g_asNonDefaultLogin[4])
 	TerminalOpenLogin()
@@ -940,7 +941,7 @@ Func TestTerminal()
 	EndIf
 
 	#Region -- Terminal Test 2 - verify an open alphacom screen outside of CMW will be focused when opening terminal app in CMW -done
-	Run(@ProgramFilesDir & "\OmniCom\AlphaCom\Alpha.exe")
+	Run(_ProgramFiles32Dir() & "\OmniCom\AlphaCom\Alpha.exe")
 	WinWait("AlphaCom")
 	WinActivate($g_wMain)
 	Sleep(5000)
@@ -1567,7 +1568,7 @@ EndFunc   ;==>TestImaging
 #Region --- REPORTS TEST FUNCTION ---
 
 Func TestReports()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("report")
 	If ProcessExists("cView.exe") Then
 		ProcessClose("cView.exe")
