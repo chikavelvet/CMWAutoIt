@@ -23,16 +23,16 @@
 	- Only the first gadget (Uninventoried Vehicles) is checked in Dashboard
 	- No lock timeout is set up
 	- The CMWTest.csv file has:
-		- A valid Yard Owner username and password
-		- The correct Password of the Day
-		- A valid stock number and part code
-		- A valid CFT file path for Alphacom
-		- A valid stock number and part code (can be same as or different to first one)
+	- A valid Yard Owner username and password
+	- The correct Password of the Day
+	- A valid stock number and part code
+	- A valid CFT file path for Alphacom
+	- A valid stock number and part code (can be same as or different to first one)
 	- The CMWTestInvLogin.csv file has:
-		- A valid Inventory-only username and password
-		- The correct Password of the Day
-		- 'image' in the second line
-		- A valid stock number and part code (can be same as or different to first two
+	- A valid Inventory-only username and password
+	- The correct Password of the Day
+	- 'image' in the second line
+	- A valid stock number and part code (can be same as or different to first two
 
 	(This information is also in "PRE-TEST CHECKLIST.txt")
 
@@ -123,22 +123,22 @@ EndFunc   ;==>TerminalOpenLogin
 
 #comments-start
 
--- AccessCMWToolbar --
-This function uses a single controlled click and regular input to access any
-of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
-and any of the subitems in these three categories. The function uses a zero-based
-three dimensional indexing system, though the third dimension is optional, and
-only used in Settings->Security, which then has more options to choose from.
+	-- AccessCMWToolbar --
+	This function uses a single controlled click and regular input to access any
+	of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
+	and any of the subitems in these three categories. The function uses a zero-based
+	three dimensional indexing system, though the third dimension is optional, and
+	only used in Settings->Security, which then has more options to choose from.
 
-- $i, $j, $k: Integers -
-These three integer inputs form a three dimensional coordinate that determines
-what specific toolbar function to access. The first value determines whether
-to open File, Settings, or Help initially; the second value determines which
-subitem to go to and open; and the third (optional) value is used if the subitem
-in turn presents multiple subitems to access (only currently found in Settings->Security).
+	- $i, $j, $k: Integers -
+	These three integer inputs form a three dimensional coordinate that determines
+	what specific toolbar function to access. The first value determines whether
+	to open File, Settings, or Help initially; the second value determines which
+	subitem to go to and open; and the third (optional) value is used if the subitem
+	in turn presents multiple subitems to access (only currently found in Settings->Security).
 
-Note: the $k value is defaulted to zero, but also not used unless $i and $j both
-are equal to 1 (Setting->Security case).
+	Note: the $k value is defaulted to zero, but also not used unless $i and $j both
+	are equal to 1 (Setting->Security case).
 
 #comments-end
 Func AccessCMWToolbar($i, $j, $k = 0)
@@ -565,7 +565,7 @@ EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
 	;maximize window (does nothing if already maximized)
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 
 	;open dashboard
 	_OpenApp("dash")
@@ -926,7 +926,7 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	#Region -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 	CheckTermSettings($g_asNonDefaultLogin[4])
 	TerminalOpenLogin()
@@ -1025,7 +1025,7 @@ Global $sLastActiveTab = "Restocked"
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
 	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
-		ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
+	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
 	Local $asOTTextMatch
 	If $sLastActiveTab == "CPU" Or $sLastActiveTab == "TCL" Then
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 3), 1)
@@ -1033,7 +1033,7 @@ Func OTGetActiveTab()
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 4), 1)
 	EndIf
 	Local $sActiveTab = $asOTTextMatch[0]
-		ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
+	ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
@@ -1063,10 +1063,10 @@ Func OTSetActiveTabNum()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
 	Local $iTabIndex = _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])
-		ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
-		ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
+	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
+	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
 	If $asActiveInfoSplit[0] == 1 Then
-				ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
+		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
 		$aiOTTabNum[$iTabIndex] = 0
 	Else
 		Local $iTabNum = $asActiveInfoSplit[2]
@@ -1090,7 +1090,7 @@ Func OTSwitchToTab($iTargetTabIndex)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
 	If $iActiveTabIndex <> $iTargetTabIndex Then
 		Local $tempTab = OTGetActiveTab()
-				ConsoleWrite("Target x-pos: " & $aiOTTabPos[$iTargetTabIndex] & @CRLF)
+		ConsoleWrite("Target x-pos: " & $aiOTTabPos[$iTargetTabIndex] & @CRLF)
 		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTargetTabIndex], 10)
 		$sLastActiveTab = $tempTab
 	EndIf
@@ -1159,9 +1159,9 @@ Func OTUpdatePos()
 		$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $aiOTTabBaseWidths[$i] + $iOffset
 		$aiOTTabCurrentWidths[$i] = $aiOTTabBaseWidths[$i] + $iOffset
 
-				ConsoleWrite(@CRLF & "$i: " & $i & @CRLF & "$iOffset: " & $iOffset & @CRLF & "$aiOTTabNum[$i]: " _
-					& $aiOTTabNum[$i] & @CRLF & "$aiOTTabPos[$i]: " & $aiOTTabPos[$i] & @CRLF & _
-					"$aiOTTabPos[$i+1]: " & $aiOTTabPos[$i+1] & @CRLF & "$aiOTTabBaseWidths[$i]: "  &$aiOTTabBaseWidths[$i] & @CRLF & @CRLF)
+		ConsoleWrite(@CRLF & "$i: " & $i & @CRLF & "$iOffset: " & $iOffset & @CRLF & "$aiOTTabNum[$i]: " _
+				 & $aiOTTabNum[$i] & @CRLF & "$aiOTTabPos[$i]: " & $aiOTTabPos[$i] & @CRLF & _
+				"$aiOTTabPos[$i+1]: " & $aiOTTabPos[$i + 1] & @CRLF & "$aiOTTabBaseWidths[$i]: " & $aiOTTabBaseWidths[$i] & @CRLF & @CRLF)
 	Next
 EndFunc   ;==>OTUpdatePos
 
@@ -1224,11 +1224,11 @@ Func nOTSwitchToTab($iTabIndex)
 	EndSwitch
 
 	Send("!v" & $sLetter)
-EndFunc
+EndFunc   ;==>nOTSwitchToTab
 
 Func nOTSendPartToTab($iTargetTabIndex)
 	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
-EndFunc
+EndFunc   ;==>nOTSendPartToTab
 
 #comments-start
 
@@ -1253,7 +1253,7 @@ EndFunc
 #comments-end
 Func OTWaitForTabLoad($wWindow = $g_wMain)
 	Return WinGetText($wWindow)
-EndFunc
+EndFunc   ;==>OTWaitForTabLoad
 
 #EndRegion -- Order Trakker Test Vars and Funcs --
 
@@ -1273,7 +1273,7 @@ Func TestTrakker()
 	;the next two tests may not be fully working yet
 	;they also might be, I need to test them some more
 
-;	Exit
+	;	Exit
 	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 	;Check Warehouse Tab
 	nOTSwitchToTab(1)
@@ -1317,6 +1317,31 @@ Func TestTrakker()
 	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
 
 	#EndRegion -- Order Trakker Test 3 - Verify that the history is correct
+
+	#Region -- Order Trakker Test 4 - Print a shipping label
+
+	#EndRegion -- Order Trakker Test 4 - Print a shipping label
+
+	#Region -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
+
+	#EndRegion -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
+
+	#Region -- Order Trakker Test 6 - View/print the details of a WO
+
+	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
+
+	#Region -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
+
+	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
+
+	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
+
+	#EndRegion -- Order Trakker Test 8 - Verify the watch list updates correctly
+
+	#Region -- Order Trakker Test 9 - Move parts to the delivered tab
+
+	#EndRegion -- Order Trakker Test 9 - Move parts to the delivered tab
+
 	Exit
 	Return "Order Trakker Test Complete"
 EndFunc   ;==>TestTrakker
@@ -1631,7 +1656,7 @@ EndFunc   ;==>TestImaging
 #Region --- REPORTS TEST FUNCTION ---
 
 Func TestReports()
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("report")
 	If ProcessExists("cView.exe") Then
 		ProcessClose("cView.exe")
