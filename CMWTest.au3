@@ -1224,10 +1224,12 @@ Func nOTSwitchToTab($iTabIndex)
 	EndSwitch
 
 	Send("!v" & $sLetter)
+	OTWaitForTabLoad()
 EndFunc   ;==>nOTSwitchToTab
 
 Func nOTSendPartToTab($iTargetTabIndex)
 	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
+	OTWaitForTabLoad()
 EndFunc   ;==>nOTSendPartToTab
 
 #comments-start
@@ -1297,12 +1299,9 @@ Func TestTrakker()
 	CaptureScreen($g_wMain, "", "Part012Dispatch")
 	For $i = 0 To 2
 		nOTSwitchToTab(0)
-		Sleep(500)
 		For $j = 1 To UBound($aiOTTabPos) - 2
 			nOTSendPartToTab($j)
-			Sleep(500)
 			nOTSwitchToTab($j)
-			OTWaitForTabLoad()
 			CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
 		Next
 	Next
@@ -1312,13 +1311,19 @@ Func TestTrakker()
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
 
 	;ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
-	Send("{Tab 2}!rh")
-	;Send("{Down 7}{Enter}")
+	Send("{Tab 2}{Down}{Up}")
+	Sleep(500)
+	Send("!rh")
 	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
+	ControlClick("Show History", "", "TBitBtn1", "primary")
 
 	#EndRegion -- Order Trakker Test 3 - Verify that the history is correct
 
 	#Region -- Order Trakker Test 4 - Print a shipping label
+	;Exit
+	Send("+{F10}g")
+	Exit
+
 
 	#EndRegion -- Order Trakker Test 4 - Print a shipping label
 
