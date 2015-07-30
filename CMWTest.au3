@@ -114,12 +114,12 @@ only used in Settings->Security, which then has more options to choose from.
 - $i, $j, $k: Integers -
 These three integer inputs form a three dimensional coordinate that determines
 what specific toolbar function to access. The first value determines whether
-to open File, Settings, or Help initially; the second value determines which 
+to open File, Settings, or Help initially; the second value determines which
 subitem to go to and open; and the third (optional) value is used if the subitem
 in turn presents multiple subitems to access (only currently found in Settings->Security).
 
 Note: the $k value is defaulted to zero, but also not used unless $i and $j both
-are equal to 1 (Setting->Security case). 
+are equal to 1 (Setting->Security case).
 
 #comments-end
 Func AccessCMWToolbar($i, $j, $k = 0)
@@ -147,17 +147,17 @@ EndFunc   ;==>AccessCMWToolbar
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
-	
+
 	;Open up Security for Dashboard menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for Dashboard")
 		AccessCMWToolbar(1, 1, 0)
 		WinWait("Security for Dashboard", "", 5)
 	WEnd
-	
+
 	;Down 3 Up 1 puts the selection highlight on the first input box
 	;set first input box to 1
 	Send("{Down 3}{Up}1")
-	
+
 	;Set all Dashboard gadget securities to 1 (Yard Owner)
 	For $i = 0 To 24
 		Send("{Down}1")
@@ -172,7 +172,7 @@ Func TestSettings()
 	WEnd
 	CaptureScreen($g_wMain, "DashboardSecurity", "SettingsTest")
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
-	
+
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
 
@@ -191,7 +191,7 @@ Func TestSettings()
 	Send("{Down}2,3")
 	;OK button
 	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
-	
+
 	;re-open security menu and take screenshot to verify settings saved
 	While Not WinExists("Security for eBay")
 		AccessCMWToolbar(1, 1, 1)
@@ -217,7 +217,7 @@ Func TestSettings()
 	Send("5,6")
 	;OK Button
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
-	
+
 	;re-open security menu and take screenshot to verify settings saved
 	While Not WinExists("Security for CMIS")
 		AccessCMWToolbar(1, 1, 2)
@@ -232,8 +232,8 @@ Func TestSettings()
 	;TO-DO: (maybe) make a user with these rights via script rather than forcing tester to have one ready
 	;TO-DO: combine CMWTestInvLogin.csv with CMWTest.csv (so everything's in one file)
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTestInvLogin.csv")
-	
-	;run the first 3 tests in the Imaging Test (sufficient for checking if user privileges is working) 
+
+	;run the first 3 tests in the Imaging Test (sufficient for checking if user privileges is working)
 	ImageTest123("SettingsTest")
 
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
@@ -271,7 +271,7 @@ Func TestSettings()
 	CaptureScreen($g_wMain, "YODashboard", "SettingsTest")
 
 	;close Dashboard tab
-	;TO-DO: make a CloseTab() function that does this stuff)  
+	;TO-DO: make a CloseTab() function that does this stuff)
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -307,7 +307,7 @@ Func TestSettings()
 	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
 	;open Imaging app (this does not use OpenApp(), see Settings Test 6 for details)
 	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
-	
+
 	;wait for security error and if/when it shows up, take a screenshot close the window
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 15)
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
@@ -320,17 +320,17 @@ Func TestSettings()
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
-	
+
 	;Ctrl+Tab to the 'additional' settings menu
 	Send("^{Tab 5}")
-	
+
 	;set the timeout to 3 minutes
 	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
-	
+
 	;save settings
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	
+
 	;this will wait for the timeout (350 seconds, though it will stop waiting upon 3 minute timeout)
 	;it will then re-log back in to CMW
 	;the first part works fine, the second part has some issues
@@ -361,10 +361,10 @@ Func TestSettings()
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
-	
+
 	;Ctrl+Tab to Tab Setup menu
 	Send("^{Tab 4}")
-	
+
 	;randomly check tabs to start up
 	For $i = 0 To 6
 		Send("{Tab}")
@@ -385,7 +385,7 @@ Func TestSettings()
 		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
 	EndIf
 	WinActivate($g_wMain)
-	
+
 	;'waits' until it can open setup menu (all apps are finished loading)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
@@ -396,7 +396,7 @@ Func TestSettings()
 
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
-	;open up Setup menu, go to tab setup, and invert all checkboxes	
+	;open up Setup menu, go to tab setup, and invert all checkboxes
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
@@ -500,31 +500,31 @@ Func WaitForNewGadget(ByRef $sCurStat, $wWindow = $g_wMain, $idStatBar = "TStatu
 EndFunc   ;==>WaitForNewGadget
 
 #comments-start
-	
+
 	-- WaitForUpdating --
 	This function waits for all active dashboard gadgets to
 	finish updating. It does this by looking for the string
 	"Updating" in the window.
-	
+
 	- $tExtraWait: Integer -
 	This parameter introduces an additional amount of constant
 	wait time to the end of the function. The input value is
 	in seconds (for convenience). The default wait time is .1
 	seconds.
-	
+
 	- $wWindow: Window -
 	This parameter specifies a specific window to look in when
 	looking for "Updating". By default (and in all current use
-	cases) it is set to the main CMW window. 
-	
+	cases) it is set to the main CMW window.
+
 	Note: This function has a bug because it only looks at the
 	first gadget's updating text. So if the first gadget loads
 	before any of the other on-screen gadgets, the function will
 	not work as intended. There may be a way to fix this via more
 	in-depth string analysis (and potentially regex) but with the
-	extra wait time functionality it hasn't become too much of 
+	extra wait time functionality it hasn't become too much of
 	a problem and I have yet to look into it fully.
-	
+
 	Note 2: There are multiple cases in these tests (and more
 	potential future cases) in which pausing the script while
 	a certain string is present in the window is useful. Therefore
@@ -532,10 +532,10 @@ EndFunc   ;==>WaitForNewGadget
 	more generally search a window for a specified string and
 	wait for the string to not be present.
 	(modifying this function would take a change of only a few words)
-	It also may be useful to make a second function that does 
+	It also may be useful to make a second function that does
 	the opposite, waiting until the string is present (already
 	somewhat implemented in TermTextWait.)
-	
+
 #comments-end
 Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 	While StringInStr(WinGetText($wWindow), "Updating")
@@ -547,10 +547,10 @@ EndFunc   ;==>WaitForUpdating
 Func TestDashboard()
 	;maximize window (does nothing if already maximized)
 	WinSetState($g_wMain, "", @SW_MAXIMIZE)
-	
+
 	;open dashboard
 	_OpenApp("dash")
-	
+
 	Local $sCurrentStatus
 
 	ControlFocus($g_wMain, "Dashboard", "TAdvToolBar2")
@@ -558,7 +558,7 @@ Func TestDashboard()
 	#Region -- Dashboard Test 1 - Turn on all gadgets -done
 	Sleep(1000)
 	$sCurrentStatus = ControlGetText($g_wMain, "", "TStatusBar1")
-	
+
 	;first, ensure the date is a single day by setting the date to today
 	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
@@ -614,10 +614,10 @@ Func TestDashboard()
 	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
-	
+
 	;click "today" to ensure it's set to today's date initially
 	ControlClick($g_wDate, "Date Range", "TButton1", "primary")
-	
+
 	;reopen date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
@@ -633,13 +633,13 @@ Func TestDashboard()
 	ControlSend($g_wDate, "Date Range", "TDateTimePicker1", "{Right 2}" & $tDateArrayMDY[2])
 	;Exit
 	ControlClick($g_wDate, "", "TBitBtn1", "primary")
-	
+
 	;wait for gadgets to update with new date range
 	WaitForUpdating()
 	Sleep(100)
 
 	CaptureScreen($g_wMain, "Gadget7DaysTest", "DashboardTest")
-	
+
 	;cycle through every gadget again, this time with the new date range
 	For $i = 0 To 24
 		ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
@@ -740,7 +740,7 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 6 - Change columns to display -done
 	WaitForUpdating(.5)
-	
+
 	;right click on grid, go down to column display options
 	;TO-DO: Change this to a Ctrl+F10 statement
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
@@ -748,33 +748,33 @@ Func TestDashboard()
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
-	
+
 	;deselect the first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
-	
+
 	;update grid and screenshot
 	WaitForUpdating(1)
 	CaptureScreen($g_wMain, "DisplayColumnsChanged", "DashboardTest")
 	Sleep(100)
-	
+
 	;re-open column display options
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(100)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
-	
+
 	;re-select first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
-	
+
 	;update grid
 	WaitForUpdating(1)
 
@@ -824,7 +824,7 @@ Func TestDashboard()
 	;open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
-	
+
 	;within the first 12 gadgets, randomly select/deselect them
 	For $i = 0 To 12
 		If Random(0, 1, 1) = 1 Then
@@ -834,7 +834,7 @@ Func TestDashboard()
 	Next
 	ControlClick($g_wGadget, "", "TBitBtn2")
 	Sleep(250)
-	
+
 	;wait for updating/resizing
 	WaitForUpdating()
 	Sleep(100)
@@ -843,7 +843,7 @@ Func TestDashboard()
 	;re-open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
-	
+
 	;within the first 12 gadgets, invert each gadget's selection
 	For $i = 0 To 12
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -884,10 +884,10 @@ EndFunc   ;==>TestDashboard
 	against the global $g_fiDefaultConnectionFile, but a parameter can be passed
 	in to make it check against the parameter. In the CMWTest, the file to use
 	as the connection file is specified in the CMWTest.csv.
-	
+
 	- $fiConnectionFile: File Path -
 	This specifies a file path to use for the AlphaCom connection file (should be
-	a valid connection file.) Default is the $g_fiDefaultConnectionFile. 
+	a valid connection file.) Default is the $g_fiDefaultConnectionFile.
 
 #comments-end
 Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
@@ -1053,7 +1053,7 @@ EndFunc   ;==>OTSetActiveTabNum
 	This function uses the $aiOTTabPos array and ControlClick() to switch tabs.
 	It only attempts the tab switch if the active tab is not the same as the tab
 	to switch to. After switching tabs, it updates $sLastActiveTab.
-	
+
 	- $iTargetTabIndex: Integer -
 	This parameter is an integer denoting the index of the target tab.
 
@@ -1077,7 +1077,7 @@ EndFunc   ;==>OTSwitchToTab
 	array automatically updates when it needs to, so repeating this function
 	is unnecessary. However, this function could be run at any time to accurately
 	update the tab positions.
-	
+
 	Note: This function is redundant, and could be removed. It is also deprecated.
 
 #comments-end
@@ -1091,7 +1091,7 @@ EndFunc   ;==>OTSetInitialTabPos
 	-- OTSetInitialNums --
 	This function updates the tab numbers (number of parts in the tab) of every
 	tab initially. After running this function once at the beginning, tab numbers
-	are updated as they are changed, so repeating this function is unnecessary. 
+	are updated as they are changed, so repeating this function is unnecessary.
 	However, this function can be run at any time to update all tab numbers.
 	This function also calls OTUpdatePos() after setting each tab numbers,
 	which effectively updates all tab positions as well.
@@ -1115,7 +1115,7 @@ EndFunc   ;==>OTSetInitialNums
 	the $aiOTTabPos array, and for each index calculates the position of the
 	next index based on the current tab's position, tab width, and tab number.
 	(The first tab position is initialized to 30, which isn't affected by any
-	tab numbers.) 
+	tab numbers.)
 
 #comments-end
 Func OTUpdatePos()
@@ -1145,7 +1145,7 @@ EndFunc   ;==>OTUpdatePos
 	This function sends the top part (or part selected) in the active tab
 	to another tab specified by the parameter. It then updates both tabs'
 	tab numbers, and updates the position of all tabs accordingly.
-	
+
 	- $iTargetTabIndex: Integer -
 	This variable holds the index of the targetted tab for the part move.
 
@@ -1242,9 +1242,9 @@ EndFunc   ;==>TestTrakker
 
 	-- ImageTest123 --
 	This function completes the first three Imaging tests. It is a separate
-	function because it is useful during the Settings Test as well as the 
+	function because it is useful during the Settings Test as well as the
 	Imaging Test (and it would be wasteful to write the code twice).
-	
+
 	- $sTestSubDir: String -
 	This parameter designates what subfolder to save any captured screenshots
 	in. By default, it's set to "ImagingTest", but it is useful to set it to
@@ -1800,7 +1800,7 @@ WinActivate($g_wMain)
 ;ConsoleWrite(TestDashboard() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
-ConsoleWrite(TestReports() & @CRLF)
+;ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
 ;ConsoleWrite(TestSettings() & @CRLF)
