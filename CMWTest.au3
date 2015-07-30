@@ -1715,11 +1715,7 @@ Func TestReports()
 	WinClose("Invoices by Customer")
 
 	#EndRegion -- Reports Test 3 - Test a few different reports -done
-<<<<<<< HEAD
-	Exit
-=======
 
->>>>>>> master
 	ControlClick($g_wMain, "", "TAdvGlowButton21")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -1825,15 +1821,9 @@ EndFunc   ;==>TestEbay
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
 ;ConsoleWrite(TestDashboard() & @CRLF)
-<<<<<<< HEAD
 ConsoleWrite(TestTerminal() & @CRLF)
 ConsoleWrite(TestImaging() & @CRLF)
 ConsoleWrite(TestReports() & @CRLF)
-=======
-;ConsoleWrite(TestTerminal() & @CRLF)
-;ConsoleWrite(TestImaging() & @CRLF)
-;ConsoleWrite(TestReports() & @CRLF)
->>>>>>> master
 ;ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
 ;ConsoleWrite(TestSettings() & @CRLF)
