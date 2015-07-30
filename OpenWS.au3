@@ -11,6 +11,6 @@
 #include <Header.au3>
 
 _OpenWS()
-_OpenApp("trakker")
+_OpenApp("trak")
 
 Exit

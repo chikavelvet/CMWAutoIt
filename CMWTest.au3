@@ -1,4 +1,5 @@
 #comments-start
+
 	All script by Trey Gonsoulin unless otherwise noted.
 
 	--- NOTES ---
@@ -16,6 +17,24 @@
 
 	Reference (CMW Test Plan):
 	http://wiki01.car-part.com:8090/display/CMDEV/CMWTestPlan
+
+	--- BEFORE STARTING TEST MAKE SURE THE FOLLOWING IS DONE ---
+	- No tabs are set to open on start-up
+	- Only the first gadget (Uninventoried Vehicles) is checked in Dashboard
+	- No lock timeout is set up
+	- The CMWTest.csv file has:
+		- A valid Yard Owner username and password
+		- The correct Password of the Day
+		- A valid stock number and part code
+		- A valid CFT file path for Alphacom
+		- A valid stock number and part code (can be same as or different to first one)
+	- The CMWTestInvLogin.csv file has:
+		- A valid Inventory-only username and password
+		- The correct Password of the Day
+		- 'image' in the second line
+		- A valid stock number and part code (can be same as or different to first two
+
+	(This information is also in "PRE-TEST CHECKLIST.txt")
 
 #comments-end
 
@@ -54,13 +73,17 @@ Func MinusSeven(ByRef $tDateArray)
 	$tDateArray[2] = $D
 EndFunc   ;==>MinusSeven
 
-
+;initializing today's date (MDY) and copying it to another variable (to be -7'd)
 Local $tDateToday = [@MON, @MDAY, @YEAR]
 Local $tDateMinusSeven = $tDateToday
+
+;subtracting seven days from today's date
 MinusSeven($tDateMinusSeven)
+
+;putting dates into formatted strings (from arrays) for use in Reports test
+;TO-DO: this overlaps with things done in Dashboard test, so try to somehow combine them
 $tDateToday = $tDateToday[2] & "-" & $tDateToday[0] & "-" & $tDateToday[1]
 $tDateMinusSeven = $tDateMinusSeven[0] & "-" & $tDateMinusSeven[1] & "-" & $tDateMinusSeven[2]
-ConsoleWrite($tDateToday & @CRLF & $tDateMinusSeven & @CRLF)
 
 #comments-start
 
@@ -87,7 +110,8 @@ Func TerminalOpenLogin($hWnd = "[CLASS:AfxFrameOrView80]")
 		Send("!es")
 	WEnd
 
-	Send($g_sUserPwd & "{Enter}")
+	ConsoleWrite($g_sUserPwd & @CRLF)
+	Send("{CAPSLOCK ON}" & StringLower($g_sUserPwd) & "{Enter}")
 
 	If TermTextWait($g_wTerminal, "Ready", $hWnd, "Find and Sell") = -1 Then
 		MsgBox(0, "No Find and Sell Found", "Something went wrong.")
@@ -97,6 +121,26 @@ EndFunc   ;==>TerminalOpenLogin
 
 #Region --- SETTINGS TEST FUNCTION ---
 
+#comments-start
+
+-- AccessCMWToolbar --
+This function uses a single controlled click and regular input to access any
+of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
+and any of the subitems in these three categories. The function uses a zero-based
+three dimensional indexing system, though the third dimension is optional, and
+only used in Settings->Security, which then has more options to choose from.
+
+- $i, $j, $k: Integers -
+These three integer inputs form a three dimensional coordinate that determines
+what specific toolbar function to access. The first value determines whether
+to open File, Settings, or Help initially; the second value determines which
+subitem to go to and open; and the third (optional) value is used if the subitem
+in turn presents multiple subitems to access (only currently found in Settings->Security).
+
+Note: the $k value is defaulted to zero, but also not used unless $i and $j both
+are equal to 1 (Setting->Security case).
+
+#comments-end
 Func AccessCMWToolbar($i, $j, $k = 0)
 	Local $iXOff
 	Switch $i
@@ -122,75 +166,131 @@ EndFunc   ;==>AccessCMWToolbar
 
 Func TestSettings()
 	#Region -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
+
+	;Open up Security for Dashboard menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for Dashboard")
 		AccessCMWToolbar(1, 1, 0)
 		WinWait("Security for Dashboard", "", 5)
 	WEnd
 
+	;Down 3 Up 1 puts the selection highlight on the first input box
+	;set first input box to 1
 	Send("{Down 3}{Up}1")
+
+	;Set all Dashboard gadget securities to 1 (Yard Owner)
 	For $i = 0 To 24
 		Send("{Down}1")
 	Next
+	;OK button
 	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
-	;Exit
+
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for Dashboard")
+		AccessCMWToolbar(1, 1, 0)
+		WinWait("Security for Dashboard", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "DashboardSecurity", "SettingsTest")
+	ControlClick("Security for Dashboard", "", "TBitBtn1", "primary")
+
 	#EndRegion -- Settings Test 1 - Edit security settings so only yard owner has access to all dashboard gadgets
 
 
 	#Region -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
+	;Open up Security for eBay menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for eBay")
 		AccessCMWToolbar(1, 1, 1)
 		WinWait("Security for eBay", "", 5)
 	WEnd
 
+	;Down 3 Up 1 puts the selection highlight on the first input box
+	;set first input box to 1
 	Send("{Down 3}{Up}1")
+	;set second input box to 2,3 (sales, sales manager)
 	Send("{Down}2,3")
+	;OK button
 	ControlClick("Security for eBay", "", "TBitBtn1", "primary")
+
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for eBay")
+		AccessCMWToolbar(1, 1, 1)
+		WinWait("Security for eBay", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "eBaySecurity", "SettingsTest")
 
 	#EndRegion -- Settings Test 2 - Set settings to eBay so only YO can list parts, but anyone with sales can view tab
 
 	#Region -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
+	;Open up Security for Imaging menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for CMIS")
 		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
+	;Imaging security menu only has one box, so Down 3 Up 1 doesn't work
+	;use controlclick to select the first/only input box
+	;TO-DO: see if there's a more stable way to select this (via keyboard)
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
+	;set first/only input box to 5,6 (inventory, inventory manager)
 	Send("5,6")
+	;OK Button
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
+
+	;re-open security menu and take screenshot to verify settings saved
+	While Not WinExists("Security for CMIS")
+		AccessCMWToolbar(1, 1, 2)
+		WinWait("Security for CMIS", "", 5)
+	WEnd
+	CaptureScreen($g_wMain, "ImagingSecurity", "SettingsTest")
 
 	#EndRegion -- Settings Test 3 - Give imaging rights so that only inventory can add images
 
 	#Region -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
+	;use the CMWTestInvLogin csv file to reopen CMW and log in as a user with only inventory rights
+	;TO-DO: (maybe) make a user with these rights via script rather than forcing tester to have one ready
+	;TO-DO: combine CMWTestInvLogin.csv with CMWTest.csv (so everything's in one file)
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTestInvLogin.csv")
+
+	;run the first 3 tests in the Imaging Test (sufficient for checking if user privileges is working)
 	ImageTest123("SettingsTest")
 
 	#EndRegion -- Settings Test 4 - Login as a user with only inventory rights, verify imaging works
 
-	#Region -- Settings Test 5 - Try to open dashboard, get security error
+	#Region -- Settings Test 5 - Try to open dashboard, get no data
+	;Open the Dashboard tab
 	_OpenApp("dash")
+	;wait for any open dashboard gadgets to update
+	;Note: Settings Test should be performed after Dashboard Test so that the resulting randomly opened
+	;gadgets from the dashboard test work to sufficiently test user privileges in the Settings Test
+	;Note 2: WaitForUpdating has a bug and may not work completely as intended (only waits for first gadget)
+	;Note 3: Even if user does not have correct privileges, CMW still allows them to open up the Dashboard
+	;tab, but every gadget's information is blank. I am unsure if this is intended behavior or not
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "NotYODashboard", "SettingsTest")
-	#EndRegion -- Settings Test 5 - Try to open dashboard, get security error
+	#EndRegion -- Settings Test 5 - Try to open dashboard, get no data
 
 	#Region -- Settings Test 6 - Try to open eBay, get security error
+	;open eBay tab (doesn't use OpenApp() because it wouldn't finish due to the tab never fully opening)
+	;TO-DO: (potentially) modify OpenApp to not cause this problem
 	ControlClick($g_wMain, "", "TAdvGlowButton9", "primary")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 5)
-	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to") Then
-		CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
-		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", "Button1", "primary")
-	Else
-		MsgBox(0, "Security box not appearing correctly", "Security settings may not be working properly.")
-	EndIf
+	;wait for security error window
+	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "You do not have security to", 10)
+	CaptureScreen($g_wMain, "NotYOeBay", "SettingsTest")
+
 	#EndRegion -- Settings Test 6 - Try to open eBay, get security error
 
 	#Region -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
+	;re-open workstation and log in using the normal CMWTest.csv (Yard Owner) account
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
+	;open Dashboard tab
 	_OpenApp("dash")
+	;see notes above (in Settings Test 5 region) on WaitForUpdating()
 	WaitForUpdating()
 	CaptureScreen($g_wMain, "YODashboard", "SettingsTest")
 
+	;close Dashboard tab
+	;TO-DO: make a CloseTab() function that does this stuff)
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -199,7 +299,9 @@ Func TestSettings()
 		Sleep(100)
 	EndIf
 
+	;open eBay app
 	_OpenApp("ebay")
+	;wait for a recurring eBay error I've been getting (cannot connect to ebay)
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 10)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
@@ -209,6 +311,7 @@ Func TestSettings()
 
 	Sleep(10000)
 
+	;close eBay tab
 	ControlClick($g_wMain, "", "TAdvGlowButton25")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -221,49 +324,67 @@ Func TestSettings()
 	#EndRegion -- Settings Test 7 - Login as yard owner, should be able to see all gadgets, and access ebay
 
 	#Region -- Settings Test 8 - (as YO), Should not be able to add images to images
+	;open Imaging app (this does not use OpenApp(), see Settings Test 6 for details)
 	ControlClick($g_wMain, "", "TAdvGlowButton10", "primary")
+
+	;wait for security error and if/when it shows up, take a screenshot close the window
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 15)
 	CaptureScreen($g_wMain, "YOImaging", "SettingsTest")
 	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 	#EndRegion -- Settings Test 8 - (as YO), Should not be able to add images to images
 
 	#Region -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
+	;open up the CMW setup menu (try again every 5 minutes if it doesn't open)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
+
+	;Ctrl+Tab to the 'additional' settings menu
 	Send("^{Tab 5}")
-	ControlSetText("Setup", "", "TAdvSpinEdit1", "1")
+
+	;set the timeout to 3 minutes
+	ControlSetText("Setup", "", "TAdvSpinEdit1", "3")
+
+	;save settings
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-	;WinWaitNotActive($g_wMain, "", 350)
-	;ConsoleWrite("Not active" & @CRLF)
-	;WinActivate($g_wPassword)
-	;WinSetState($g_wPassword, "", @SW_SHOW)
-	;ConsoleWrite(Binary(WinGetState($g_wMain)) & @CRLF)
-	;ConsoleWrite("Title: " & WinGetTitle(WinGetHandle("")) & @CRLF & "Text: " & WinGetText(WinGetHandle("")) & @CRLF)
-	;ConsoleWrite("Waited" & @CRLF)
-	;WinActivate($g_wMain)
-	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
 
+	;this will wait for the timeout (350 seconds, though it will stop waiting upon 3 minute timeout)
+	;it will then re-log back in to CMW
+	;the first part works fine, the second part has some issues
+	;	WinWaitNotActive($g_wMain, "", 350)
+	;	ConsoleWrite("Not active" & @CRLF)
+	;	WinActivate($g_wPassword)
+	;	WinSetState($g_wPassword, "", @SW_SHOW)
+	;	WinActivate($g_wMain)
+	;Requires user input here
+	;TO-DO: make it not require user input
+	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
 	#EndRegion -- Settings Test 9 - Change lockout setting to 3 minutes, let PC sit and verify ws prompt appears
 
 	#Region -- Settings Test 10 - Set different tools to open automatically, verify they do so
+	;open Security for Imaging (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Security for CMIS")
 		AccessCMWToolbar(1, 1, 2)
 		WinWait("Security for CMIS", "", 5)
 	WEnd
 
+	;set imaging security up to work for Yard Owner again, so it doesn't give security error when it opens
 	ControlClick("Security for CMIS", "", "TAdvStringGrid1", "primary", 1, 180, 30)
 	Send("1,5,6")
 	ControlClick("Security for CMIS", "", "TBitBtn1", "primary")
 
+	;open up CMW Setup menu (try again every 5 seconds if it doesn't work)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 
+	;Ctrl+Tab to Tab Setup menu
 	Send("^{Tab 4}")
+
+	;randomly check tabs to start up
 	For $i = 0 To 6
 		Send("{Tab}")
 		If Random(0, 1, 1) = 1 Then
@@ -274,14 +395,17 @@ Func TestSettings()
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
+	;open WS to see if proper tabs show up
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
-
+	;wait for and deal with eBay error message
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
 		CaptureScreen($g_wMain, "ErrorImage" & $g_iErrorCount)
 	EndIf
 	WinActivate($g_wMain)
+
+	;'waits' until it can open setup menu (all apps are finished loading)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
@@ -291,6 +415,7 @@ Func TestSettings()
 
 	CaptureScreen($g_wMain, "RandomTabsOpened1", "SettingsTest")
 
+	;open up Setup menu, go to tab setup, and invert all checkboxes
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
@@ -306,8 +431,8 @@ Func TestSettings()
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
+	;open WS to see if proper tabs show up, deal with eBay error if it happens, wait until setup menu can open
 	_OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
-
 	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "", 30)
 	If WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]") Then
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "", "Button1", "primary")
@@ -320,17 +445,18 @@ Func TestSettings()
 	WEnd
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-
 	CaptureScreen($g_wMain, "RandomTabsOpened2", "SettingsTest")
 
 	#EndRegion -- Settings Test 10 - Set different tools to open automatically, verify they do so
 
 	#Region -- Settings Test 11 - Edit printer settings
+	;open CMW setup menu (try again every 5 seconds if it doesn't open)
 	While Not WinExists("Setup")
 		AccessCMWToolbar(1, 0)
 		WinWait("Setup", "", 5)
 	WEnd
 	WinActivate("Setup")
+	;Ctrl+Tab over to printer settings, change the RPT printer to be one down from what it is
 	Send("^{Tab 3}")
 	;ControlClick("Setup", "", "Edit5", "primary")
 	ControlSend("Setup", "", "Edit5", "{Down}")
@@ -392,6 +518,44 @@ Func WaitForNewGadget(ByRef $sCurStat, $wWindow = $g_wMain, $idStatBar = "TStatu
 	$sCurStat = ControlGetText($wWindow, "", $idStatBar)
 EndFunc   ;==>WaitForNewGadget
 
+#comments-start
+
+	-- WaitForUpdating --
+	This function waits for all active dashboard gadgets to
+	finish updating. It does this by looking for the string
+	"Updating" in the window.
+
+	- $tExtraWait: Integer -
+	This parameter introduces an additional amount of constant
+	wait time to the end of the function. The input value is
+	in seconds (for convenience). The default wait time is .1
+	seconds.
+
+	- $wWindow: Window -
+	This parameter specifies a specific window to look in when
+	looking for "Updating". By default (and in all current use
+	cases) it is set to the main CMW window.
+
+	Note: This function has a bug because it only looks at the
+	first gadget's updating text. So if the first gadget loads
+	before any of the other on-screen gadgets, the function will
+	not work as intended. There may be a way to fix this via more
+	in-depth string analysis (and potentially regex) but with the
+	extra wait time functionality it hasn't become too much of
+	a problem and I have yet to look into it fully.
+
+	Note 2: There are multiple cases in these tests (and more
+	potential future cases) in which pausing the script while
+	a certain string is present in the window is useful. Therefore
+	this function could be modified (or a new one created) to
+	more generally search a window for a specified string and
+	wait for the string to not be present.
+	(modifying this function would take a change of only a few words)
+	It also may be useful to make a second function that does
+	the opposite, waiting until the string is present (already
+	somewhat implemented in TermTextWait.)
+
+#comments-end
 Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 	While StringInStr(WinGetText($wWindow), "Updating")
 		Sleep(250)
@@ -400,8 +564,12 @@ Func WaitForUpdating($tExtraWait = .1, $wWindow = $g_wMain)
 EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;maximize window (does nothing if already maximized)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+
+	;open dashboard
 	_OpenApp("dash")
+
 	Local $sCurrentStatus
 
 	ControlFocus($g_wMain, "Dashboard", "TAdvToolBar2")
@@ -409,12 +577,18 @@ Func TestDashboard()
 	#Region -- Dashboard Test 1 - Turn on all gadgets -done
 	Sleep(1000)
 	$sCurrentStatus = ControlGetText($g_wMain, "", "TStatusBar1")
+
+	;first, ensure the date is a single day by setting the date to today
+	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
+	;click 'today' button
 	ControlClick($g_wDate, "", "TButton1")
 	WaitForUpdating()
 	Sleep(200)
 	CaptureScreen($g_wMain, "GadgetTest1", "DashboardTest")
+	;open up gadget settings menu and activate each gadget, one at a time
+	;take screenshots after the gadget loads
 	For $i = 0 To 24
 		ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 		WinWait($g_wGadget)
@@ -445,6 +619,7 @@ Func TestDashboard()
 	;Exit
 	#EndRegion -- Dashboard Test 1 - Turn on all gadgets -done
 
+	;reset open gadgets to just be "uninventoried vehicles"
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -455,27 +630,36 @@ Func TestDashboard()
 	#Region -- Dashboard Test 2 - Set date for 7 days -done
 	;TO-DO: Skip gadgets that don't use date range
 	WaitForNewGadget($sCurrentStatus)
+	;open up date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
 
+	;click "today" to ensure it's set to today's date initially
 	ControlClick($g_wDate, "Date Range", "TButton1", "primary")
+
+	;reopen date settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sd")
 	WinWait($g_wDate)
 
+	;check the date range checkbox
 	ControlCommand($g_wDate, "Date Range", "TCheckBox1", "Check", "")
 
+	;calculate today's date (formatted) and the date seven days ago
 	Local $tDateArrayMDY = StringSplit(ControlGetText($g_wDate, "Date Range", "TDateTimePicker2") & @CRLF, "/", 2)
 	MinusSeven($tDateArrayMDY)
+	;set the date fields to match the calculated values
 	ControlClick($g_wDate, "Date Range", "TDateTimePicker1", "primary")
 	ControlSend($g_wDate, "Date Range", "TDateTimePicker1", "{Right 2}" & $tDateArrayMDY[2])
 	;Exit
 	ControlClick($g_wDate, "", "TBitBtn1", "primary")
 
+	;wait for gadgets to update with new date range
 	WaitForUpdating()
 	Sleep(100)
 
 	CaptureScreen($g_wMain, "Gadget7DaysTest", "DashboardTest")
 
+	;cycle through every gadget again, this time with the new date range
 	For $i = 0 To 24
 		ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 		WinWait($g_wGadget)
@@ -507,6 +691,7 @@ Func TestDashboard()
 	#EndRegion -- Dashboard Test 2 - Set date for 7 days -done
 
 	;Exit
+	;reset open gadgets back to only "uninventoried vehicles"
 	Sleep(250)
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
@@ -520,6 +705,7 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 4 - Display Only WO for "NameLoggedIn" -done
 
+	;open a couple WO related gadgets
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -531,9 +717,12 @@ Func TestDashboard()
 	WaitForUpdating(.5)
 
 	CaptureScreen($g_wMain, "WOs_ALL", "DashboardTest")
+
+	;change setting to only view WOs by active user
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!si")
 	WaitForUpdating(.5)
 	CaptureScreen($g_wMain, "WOs_(" & $g_sUserName & ")", "DashboardTest")
+	;change it back
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!si")
 	WaitForUpdating(.5)
 
@@ -544,6 +733,7 @@ Func TestDashboard()
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
 
+	;open some more gadgets (first two)
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
@@ -552,6 +742,7 @@ Func TestDashboard()
 	WaitForNewGadget($sCurrentStatus)
 	WaitForUpdating(1)
 
+	;expand and contract the first two gadgets on the screen
 	CaptureScreen($g_wMain, "ExpandGadget(Before)", "DashboardTest")
 	ControlClick($g_wMain, "", "TButton1")
 	Sleep(250)
@@ -568,44 +759,59 @@ Func TestDashboard()
 
 	#Region -- Dashboard Test 6 - Change columns to display -done
 	WaitForUpdating(.5)
+
+	;right click on grid, go down to column display options
+	;TO-DO: Change this to a Ctrl+F10 statement
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(100)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
+
+	;deselect the first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
+
+	;update grid and screenshot
 	WaitForUpdating(1)
 	CaptureScreen($g_wMain, "DisplayColumnsChanged", "DashboardTest")
 	Sleep(100)
+
+	;re-open column display options
 	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 	Sleep(100)
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 2}")
 	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 	WinWait($g_wDashSett)
+
+	;re-select first 3 columns to display
 	For $n = 0 To 2
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wDashSett, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wDashSett, "", "TBitBtn2", "primary")
+
+	;update grid
 	WaitForUpdating(1)
 
 
 	#EndRegion -- Dashboard Test 6 - Change columns to display -done
 
 	#Region -- Dashboard Test 7 - Show details for WO -done
+	;this works more or less but seems to fail depending on the workstation environment
+	;(it works on a normal-type workstation with data, but not on some QA-types)
+	#comments-start
+		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
+		Sleep(200)
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
+		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
 
-	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
-	Sleep(200)
-	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
-	ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
-
-	Local $i = 1
-	While WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number")
+		Local $i = 1
+		While WinExists("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number")
 		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", "Button1", "primary")
 		ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary")
 		Sleep(200)
@@ -621,43 +827,50 @@ Func TestDashboard()
 		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Down 7}")
 		ControlSend($g_wMain, "", "TAdvStringGrid1", "{Enter}")
 		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Error: WO Number", 5)
-	WEnd
+		WEnd
 
-	WinWait($g_wPrint)
-	WinSetState($g_wPrint, "", @SW_MAXIMIZE)
-	ControlClick($g_wPrint, "", "TButton4", "primary")
-	Sleep(100)
-	CaptureScreen($g_wPrint, "WODetails", "DashboardTest")
-	ControlClick($g_wPrint, "", "TButton6", "primary")
-
+		WinWait($g_wPrint)
+		WinSetState($g_wPrint, "", @SW_MAXIMIZE)
+		ControlClick($g_wPrint, "", "TButton4", "primary")
+		Sleep(100)
+		CaptureScreen($g_wPrint, "WODetails", "DashboardTest")
+		ControlClick($g_wPrint, "", "TButton6", "primary")
+	#comments-end
 	#EndRegion -- Dashboard Test 7 - Show details for WO -done
 
 	#Region -- Dashboard Test 3 - Verify resizing -done
 
+	;open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
+
+	;within the first 12 gadgets, randomly select/deselect them
 	For $i = 0 To 12
 		If Random(0, 1, 1) = 1 Then
 			ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 		EndIf
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	Next
-
-
 	ControlClick($g_wGadget, "", "TBitBtn2")
 	Sleep(250)
+
+	;wait for updating/resizing
 	WaitForUpdating()
 	Sleep(100)
 	CaptureScreen($g_wMain, "Resize", "DashboardTest")
 
+	;re-open gadget settings menu
 	ControlSend($g_wMain, "", "TAdvToolBar2", "!sg")
 	WinWait($g_wGadget)
+
+	;within the first 12 gadgets, invert each gadget's selection
 	For $i = 0 To 12
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Space}")
 		ControlSend($g_wGadget, "", "TAdvStringGrid1", "{Down}")
 	Next
 	ControlClick($g_wGadget, "", "TBitBtn2")
 
+	;wait for updating/resizing
 	WaitForUpdating()
 	Sleep(100)
 
@@ -665,6 +878,7 @@ Func TestDashboard()
 
 	#EndRegion -- Dashboard Test 3 - Verify resizing -done
 
+	;close dashboard
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
@@ -681,8 +895,25 @@ EndFunc   ;==>TestDashboard
 
 #Region --- TERMINAL TEST FUNCTION ---
 
+#comments-start
+
+	-- CheckTermSettings --
+	This function is designed to check the terminal settings tab in the CMW setup
+	menu, and make sure the connection file is correct. By default, it checks it
+	against the global $g_fiDefaultConnectionFile, but a parameter can be passed
+	in to make it check against the parameter. In the CMWTest, the file to use
+	as the connection file is specified in the CMWTest.csv.
+
+	- $fiConnectionFile: File Path -
+	This specifies a file path to use for the AlphaCom connection file (should be
+	a valid connection file.) Default is the $g_fiDefaultConnectionFile.
+
+#comments-end
 Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
-	ControlSend($g_wMain, "", "TAdvOfficePager1", "!sw")
+	While Not WinExists("Setup")
+		AccessCMWToolbar(1, 0)
+		WinWait("Setup", "", 5)
+	WEnd
 	WinWait("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
 	WinActivate("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
 	ControlSend("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TPageControl1", "^{Tab 2}")
@@ -695,7 +926,7 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	#Region -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 	CheckTermSettings($g_asNonDefaultLogin[4])
 	TerminalOpenLogin()
@@ -710,7 +941,7 @@ Func TestTerminal()
 	EndIf
 
 	#Region -- Terminal Test 2 - verify an open alphacom screen outside of CMW will be focused when opening terminal app in CMW -done
-	Run(@ProgramFilesDir & "\OmniCom\AlphaCom\Alpha.exe")
+	Run(_ProgramFiles32Dir() & "\OmniCom\AlphaCom\Alpha.exe")
 	WinWait("AlphaCom")
 	WinActivate($g_wMain)
 	Sleep(5000)
@@ -733,6 +964,13 @@ Func TestTerminal()
 	#EndRegion -- Terminal Test 3 - verify that alphacom opens in both of 2 separate CMWs -done
 
 	WinClose($g_wMain)
+	WinWait($g_wMessage, "Never ask again", 5)
+	If WinExists($g_wMessage) Then
+		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
+		ControlClick($g_wMessage, "", "TAdvGlowButton1")
+	EndIf
+	Sleep(500)
+	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
 	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	;ConsoleWrite("Found the Find and Sell; No Problemo 2" & @CRLF)
 	ControlClick($g_wMain, "", "TAdvGlowButton14")
@@ -749,12 +987,16 @@ EndFunc   ;==>TestTerminal
 
 #Region --- ORDER TRAKKER TEST FUNCTION ---
 
-#Region -- Order Trakker Test Vars and Funcs -- DEPRECATED: YOU CAN CHANGE TABS VIA ALT-KEYS
-;some functions may still be useful
+#Region -- Order Trakker Test Vars and Funcs --
+;NOTE: These variables and functions are deprecated.
+
+;an array of valid pixel positions to click to access each tab (updates)
 
 Global $aiOTTabPos[15] = [30]
+;an array of the number of parts in each tab (updates)
 Global $aiOTTabNum[15]
 
+;an array of each tab's name, used to look-up a tab index based on name
 Global $asOTNameIndex[15] = [ _
 		"Dispatch", _
 		"Warehouse", "Dismantling", "Yard", "Brokered", _
@@ -763,10 +1005,23 @@ Global $asOTNameIndex[15] = [ _
 		"Returned", "Delivered", "Restocked" _
 		]
 
-Global $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;a constant array of the base widths of each tab
+Global Const $aiOTTabBaseWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;an array of the currect widths of each tab (deprecated, updated)
 Global $aiOTTabCurrentWidths[15] = [80, 94, 100, 59, 78, 66, 59, 68, 60, 60, 60, 93, 79, 83, 88]
+;a string denoting the last active tab (for regex search purposes)
 Global $sLastActiveTab = "Restocked"
 
+#comments-start
+
+	-- OTGetActiveTab --
+	This function gets the name and number of parts in the active tab. It does
+	this primarily through getting the text of the window, stripping it of all
+	whitespace and carriage returns, and using REGEX to look for where the name
+	of the active tab must be (between "Dispatch" and the last active tab name).
+	It returns this as a string.
+
+#comments-end
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
 	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
@@ -782,6 +1037,14 @@ Func OTGetActiveTab()
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
+#comments-start
+
+	-- OTGetActiveTabIndex --
+	This function uses OTGetActiveTab() to find the active tab's name, and then
+	checks it against $asOTNameIndex to see what the index number of the active
+	tab is. It returns this as an integer.
+
+#comments-end
 Func OTGetActiveTabIndex()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
@@ -789,6 +1052,13 @@ Func OTGetActiveTabIndex()
 	Return $iTabIndex
 EndFunc   ;==>OTGetActiveTabIndex
 
+#comments-start
+
+	-- OTSetActiveTabNum --
+	This function uses OTGetActiveTab() to get the number of parts
+	in the active tab. It then updates the $aiOTTabNum array accordingly.
+
+#comments-end
 Func OTSetActiveTabNum()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
@@ -801,16 +1071,20 @@ Func OTSetActiveTabNum()
 	Else
 		Local $iTabNum = $asActiveInfoSplit[2]
 		$aiOTTabNum[$iTabIndex] = $iTabNum
-		;		Local $iOffset = 0
-		;		If $aiOTTabNum[$iTabIndex] < 10 Then
-		;			$iOffset = 28
-		;		Else
-		;			$iOffset = 36
-		;		EndIf
-		;		$aiOTTabCurrentWidths[$iTabIndex] = $aiOTTabBaseWidths[$iTabIndex] + $iOffset
 	EndIf
 EndFunc   ;==>OTSetActiveTabNum
 
+#comments-start
+
+	-- OTSwitchToTab --
+	This function uses the $aiOTTabPos array and ControlClick() to switch tabs.
+	It only attempts the tab switch if the active tab is not the same as the tab
+	to switch to. After switching tabs, it updates $sLastActiveTab.
+
+	- $iTargetTabIndex: Integer -
+	This parameter is an integer denoting the index of the target tab.
+
+#comments-end
 Func OTSwitchToTab($iTargetTabIndex)
 	ConsoleWrite("Tab Index to Switch to: " & $iTargetTabIndex & @CRLF)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
@@ -822,10 +1096,33 @@ Func OTSwitchToTab($iTargetTabIndex)
 	EndIf
 EndFunc   ;==>OTSwitchToTab
 
+#comments-start
+
+	-- OTSetInitialTabPos --
+	This function is a function run at the beginning of the test to set the
+	initial positions of the tabs based on tab number. After this, the position
+	array automatically updates when it needs to, so repeating this function
+	is unnecessary. However, this function could be run at any time to accurately
+	update the tab positions.
+
+	Note: This function is redundant, and could be removed. It is also deprecated.
+
+#comments-end
 Func OTSetInitialTabPos()
 	OTSetInitialNums()
 EndFunc   ;==>OTSetInitialTabPos
 
+#comments-start
+
+	-- OTSetInitialNums --
+	This function updates the tab numbers (number of parts in the tab) of every
+	tab initially. After running this function once at the beginning, tab numbers
+	are updated as they are changed, so repeating this function is unnecessary.
+	However, this function can be run at any time to update all tab numbers.
+	This function also calls OTUpdatePos() after setting each tab numbers,
+	which effectively updates all tab positions as well.
+
+#comments-end
 Func OTSetInitialNums()
 	;	Local $iCurTabWidth
 	For $i = 0 To UBound($aiOTTabPos) - 2
@@ -837,6 +1134,16 @@ Func OTSetInitialNums()
 	Next
 EndFunc   ;==>OTSetInitialNums
 
+#comments-start
+
+	-- OTUpdatePos --
+	This function is the heart of the tab tracking system. It goes through
+	the $aiOTTabPos array, and for each index calculates the position of the
+	next index based on the current tab's position, tab width, and tab number.
+	(The first tab position is initialized to 30, which isn't affected by any
+	tab numbers.)
+
+#comments-end
 Func OTUpdatePos()
 	Local $iOffset
 	For $i = 0 To UBound($aiOTTabPos) - 2
@@ -858,6 +1165,17 @@ Func OTUpdatePos()
 	Next
 EndFunc   ;==>OTUpdatePos
 
+#comments-start
+
+	-- OTSendPartToTab --
+	This function sends the top part (or part selected) in the active tab
+	to another tab specified by the parameter. It then updates both tabs'
+	tab numbers, and updates the position of all tabs accordingly.
+
+	- $iTargetTabIndex: Integer -
+	This variable holds the index of the targetted tab for the part move.
+
+#comments-end
 Func OTSendPartToTab($iTargetTabIndex)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
 	If $aiOTTabNum[$iActiveTabIndex] > 0 Then
@@ -988,6 +1306,19 @@ EndFunc   ;==>TestTrakker
 
 #Region --- IMAGING TEST FUNCTION ---
 
+#comments-start
+
+	-- ImageTest123 --
+	This function completes the first three Imaging tests. It is a separate
+	function because it is useful during the Settings Test as well as the
+	Imaging Test (and it would be wasteful to write the code twice).
+
+	- $sTestSubDir: String -
+	This parameter designates what subfolder to save any captured screenshots
+	in. By default, it's set to "ImagingTest", but it is useful to set it to
+	"SettingsTest" for use during the Settings Test.
+
+#comments-end
 Func ImageTest123($sTestSubDir = "ImagingTest")
 	#Region -- Imaging Test 1 - Look up a stock number -done
 	Local $sLoginFileImagingLine = $g_asNonDefaultLogin[2]
@@ -1037,7 +1368,9 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 		If $j >= 2 Then
 			Sleep(500)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
+			Sleep(100)
 			Send($i)
+			Sleep(100)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
 			;Sleep(5000))
 		EndIf
@@ -1066,8 +1399,6 @@ EndFunc   ;==>ImageTest123
 
 
 Func TestImaging()
-	WinSetState($g_wMain, "", @SW_SHOWNORMAL)
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("image")
 
 	ImageTest123()
@@ -1191,45 +1522,45 @@ Func TestImaging()
 		Exit
 
 		#EndRegion -- Imaging Test 7 - Change location of imported images
-	#comments-end
-	#Region -- Imaging Test 8 - Look up the images in alphacom and verify link
 
-	TerminalOpenLogin()
+		#Region -- Imaging Test 8 - Look up the images in alphacom and verify link
 
-	;TO-DO: make this work
-	;Send("!es")
-	;Local $sTerminalScreen = ClipGet()
-	;ConsoleWrite($sTerminalScreen & @CRLF)
-	;Local $asTerminalScreenArray = StringSplit($sTerminalScreen, ":", 2)
-	;_ArrayDisplay($asTerminalScreenArray)
-	;_ArraySearch($asTerminalScreenArray, ""
+		TerminalOpenLogin()
 
-	Send("{Down 4}")
-	Send($sPartCode)
-	Send("{Enter}")
-	Send("{Down 2}")
-	Send($iStockNumber)
-	Send("{ESC}")
+		;TO-DO: make this work
+		;Send("!es")
+		;Local $sTerminalScreen = ClipGet()
+		;ConsoleWrite($sTerminalScreen & @CRLF)
+		;Local $asTerminalScreenArray = StringSplit($sTerminalScreen, ":", 2)
+		;_ArrayDisplay($asTerminalScreenArray)
+		;_ArraySearch($asTerminalScreenArray, ""
 
-	TermTextWait($g_wTerminal, "Ready", "AfxFrameOrView801", "Stock #: " & $iStockNumber)
-	Send("{Left}")
-	Sleep(100)
-	CaptureScreen($g_wMain, "ImageLink", "ImagingTest")
-	;Local $aiAlphaPos = ControlGetPos("AlphaCom", "", "AfxFrameOrView801")
-	;Sleep(6000)
-	;_ArrayDisplay($aiAlphaPos)
-	;ConsoleWrite($aiAlphaPos & @CRLF)
-	;Exit
-	;MouseMove(@DesktopWidth * .625, @DesktopHeight * .5926)
-	MouseClick("primary", @DesktopWidth * .625, @DesktopHeight * .5926)
-	WinWait("Image Viewer")
-	WinActivate("Image Viewer")
-	Sleep(5000)
-	CaptureScreen("Image Viewer", "VerifyLink", "ImagingTest")
-	Sleep(500)
+		Send("{Down 4}")
+		Send($sPartCode)
+		Send("{Enter}")
+		Send("{Down 2}")
+		Send($iStockNumber)
+		Send("{ESC}")
 
-	#EndRegion -- Imaging Test 8 - Look up the images in alphacom and verify link
-	#comments-start
+		TermTextWait($g_wTerminal, "Ready", "AfxFrameOrView801", "Stock #: " & $iStockNumber)
+		Send("{Left}")
+		Sleep(100)
+		CaptureScreen($g_wMain, "ImageLink", "ImagingTest")
+		;Local $aiAlphaPos = ControlGetPos("AlphaCom", "", "AfxFrameOrView801")
+		;Sleep(6000)
+		;_ArrayDisplay($aiAlphaPos)
+		;ConsoleWrite($aiAlphaPos & @CRLF)
+		;Exit
+		;MouseMove(@DesktopWidth * .625, @DesktopHeight * .5926)
+		MouseClick("primary", @DesktopWidth * .625, @DesktopHeight * .5926)
+		WinWait("Image Viewer")
+		WinActivate("Image Viewer")
+		Sleep(5000)
+		CaptureScreen("Image Viewer", "VerifyLink", "ImagingTest")
+		Sleep(500)
+
+		#EndRegion -- Imaging Test 8 - Look up the images in alphacom and verify link
+
 		#Region -- Imaging Test 9 - Print the images from the viewer
 
 		Local $aiViewerWindPos = WinGetPos("Image Viewer")
@@ -1279,7 +1610,7 @@ EndFunc   ;==>TestImaging
 #Region --- REPORTS TEST FUNCTION ---
 
 Func TestReports()
-	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("report")
 	If ProcessExists("cView.exe") Then
 		ProcessClose("cView.exe")
@@ -1428,7 +1759,7 @@ Func TestReports()
 
 	#EndRegion -- Reports Test 3 - Test a few different reports -done
 
-	ControlClick($g_wMain, "", "TAdvGlowButton15")
+	ControlClick($g_wMain, "", "TAdvGlowButton21")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
 		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
@@ -1439,8 +1770,6 @@ Func TestReports()
 	Return "Reports Test Complete"
 
 EndFunc   ;==>TestReports
-
-
 
 #EndRegion --- REPORTS TEST FUNCTION ---
 
@@ -1535,13 +1864,12 @@ EndFunc   ;==>TestEbay
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
 ;ConsoleWrite(TestDashboard() & @CRLF)
-;ConsoleWrite(TestSettings() & @CRLF)
-;ConsoleWrite(TestTerminal() & @CRLF)
-;ConsoleWrite(TestImaging() & @CRLF)
-;ConsoleWrite(TestReports() & @CRLF)
-ConsoleWrite(TestTrakker() & @CRLF)
+ConsoleWrite(TestTerminal() & @CRLF)
+ConsoleWrite(TestImaging() & @CRLF)
+ConsoleWrite(TestReports() & @CRLF)
+;ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
-
+;ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 2
 
