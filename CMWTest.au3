@@ -1230,6 +1230,31 @@ Func nOTSendPartToTab($iTargetTabIndex)
 	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
 EndFunc
 
+#comments-start
+
+	-- OTWaitForTabLoad --
+	This function waits for the active tab to fully load before moving on.
+	It relies on the behavior of WinGetText, which when called will not
+	continue the script until it's able to get the text of the specified
+	window, and also that the text of the window is apparently unretrievable
+	until the tab information has fully loaded. The window it checks is
+	customizable, though it is always $g_wMain in this Test.
+
+	- $wWindow: Window handle -
+	This specifies the window to search for text in. By default, and in every
+	use during this Test, it is $g_wMain.
+
+	Note: this function also returns the text that it gets. Generally the
+	function will be called such that its return information is unused (as
+	in the case of simply pausing the script). Its return value may have
+	as-of-now unrecognized use, and it doesn't reduce efficiency, so it
+	has been left.
+
+#comments-end
+Func OTWaitForTabLoad($wWindow = $g_wMain)
+	Return WinGetText($wWindow)
+EndFunc
+
 #EndRegion -- Order Trakker Test Vars and Funcs --
 
 Func TestTrakker()
@@ -1242,17 +1267,13 @@ Func TestTrakker()
 	Local $posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 
-
-	;OTSetInitialTabPos()
-
-
-	;Sleep(500)
-
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
 	;the next two tests may not be fully working yet
 	;they also might be, I need to test them some more
+
+;	Exit
 	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 	;Check Warehouse Tab
 	nOTSwitchToTab(1)
@@ -1271,18 +1292,17 @@ Func TestTrakker()
 	Sleep(500)
 	#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 
-
 	#Region -- Order Trakker Test 2 - Move each part into every tab
 	nOTSwitchToTab(0)
 	CaptureScreen($g_wMain, "", "Part012Dispatch")
 	For $i = 0 To 2
 		nOTSwitchToTab(0)
 		Sleep(500)
-		For $j = 0 To UBound($aiOTTabPos) - 2
+		For $j = 1 To UBound($aiOTTabPos) - 2
 			nOTSendPartToTab($j)
 			Sleep(500)
 			nOTSwitchToTab($j)
-			Sleep(500)
+			OTWaitForTabLoad()
 			CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
 		Next
 	Next
