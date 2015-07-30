@@ -125,6 +125,7 @@ Func _UpdateWS()
 	Local $asCMWType = StringSplit($fiSettings[0], "=", 2)
 	Local $sUpgradePrefix
 
+	ConsoleWrite("Here1" & @CRLF)
 	;determining prefix to executable based on CMW type
 	Switch $asCMWType[1]
 		Case "qa"
@@ -169,25 +170,25 @@ Func _UpdateWS()
 	InetGet($dlURL, $sExecutablePath, 0, 1)
 	MsgBox(0, "Please wait", "CMW is downloading in the background, and will install when done.", 5)
 
-	;set-up for timer
+	;wait 5 minutes for the file to download
 	Local $tBegin = TimerInit()
-	;for 5 minutes, check every second if the executable exists (dl complete)
-	;if it is, exit the loop
 	While TimerDiff($tBegin) < 300000
 		If FileExists($sExecutablePath) Then
 			ExitLoop
 		EndIf
 		Sleep(1000)
 	WEnd
+	;ConsoleWrite("Found exec" & @CRLF & $sExecutablePath & @CRLF)
 
-	;if the executable isn't there after the 5 minute loop, throw error
+	;if is isn't done after 5 minutes, error
 	If Not FileExists($sExecutablePath) Then
 		MsgBox(0, "File not Found", "Download did not complete or took longer than five minutes. Please retry.")
 		Exit 2
 	EndIf
 
-	;run the executable
+	;ConsoleWrite("About to run exec" & @CRLF)
 	Run($sExecutablePath)
+	;ConsoleWrite("Ran exec" & @CRLF)
 
 	;wait for the upgrade to finish
 	WinWait("cmwupdater Setup", "Update is finished")
@@ -233,6 +234,17 @@ Func LogIn($fiLoginFile = $g_fiDefaultLoginFile)
 	EndIf
 EndFunc
 
+Func _ProgramFiles32Dir()
+    Local $fiProgramFileDir
+    Switch @OSArch
+        Case "X32"
+            $fiProgramFileDir = "Program Files"
+        Case "X64"
+            $fiProgramFileDir = "Program Files (x86)"
+    EndSwitch
+    Return @HomeDrive & "\" & $fiProgramFileDir
+EndFunc   ;==>_ProgramFilesDirh
+
 #comments-start
 
 	-- _OpenWS --
@@ -269,6 +281,9 @@ Func _OpenWS($fiLoginFile = $g_fiDefaultLoginFile, $asApps = Null, $bKillOpen = 
 		$g_asNonDefaultLogin = $asOpenInfo
 	EndIf
 	Local $asLoginInfo = StringSplit($asOpenInfo[0], ",")
+	Local $fiProgramFilesDir = _ProgramFiles32Dir()
+
+;	ConsoleWrite("Here2" & @CRLF)
 
 	;if apps parameter is null (default), get it from log-in file, else use the parameter
 	If $asApps = Null Then
@@ -284,12 +299,12 @@ Func _OpenWS($fiLoginFile = $g_fiDefaultLoginFile, $asApps = Null, $bKillOpen = 
 	$g_sPOD = $asLoginInfo[4]
 
 	;Check to see if CMW.exe is running; if so, kill it.
-	While $bKillOpen And ProcessExists("CMW.exe")
-		ProcessClose("CMW.exe")
-	WEnd
+	If $bKillOpen And ProcessExists("CMW.exe") Then ProcessClose("CMW.exe")
 
-	Run(@ProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
-
+;	ConsoleWrite("About to run" & @CRLF)
+;	ConsoleWrite($fiProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
+	Run($fiProgramFilesDir & "\Car-Part\Checkmate Workstation\CMW.exe")
+;	ConsoleWrite("Ran" & @CRLF)
 	LogIn($fiLoginFile)
 
 	;wait for CMW main window to appear, and make sure it is active
