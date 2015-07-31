@@ -1961,13 +1961,13 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-;ConsoleWrite(TestDashboard() & @CRLF)
-;ConsoleWrite(TestTerminal() & @CRLF)
-;ConsoleWrite(TestImaging() & @CRLF)
-;ConsoleWrite(TestReports() & @CRLF)
+ConsoleWrite(TestDashboard() & @CRLF)
+ConsoleWrite(TestTerminal() & @CRLF)
+ConsoleWrite(TestImaging() & @CRLF)
+ConsoleWrite(TestReports() & @CRLF)
 ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
-;ConsoleWrite(TestSettings() & @CRLF)
+ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 2
 
