@@ -1261,13 +1261,7 @@ EndFunc   ;==>OTWaitForTabLoad
 
 Func TestTrakker()
 	_OpenApp("trak")
-	While Not WinExists("Setup")
-		WinActivate($g_wMain)
-		AccessCMWToolbar(1, 0)
-		WinWait("Setup", "", 5)
-	WEnd
-	Local $posSetupWin = WinGetPos("Setup")
-	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
+	OTWaitForTabLoad()
 
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
@@ -1305,7 +1299,7 @@ Func TestTrakker()
 	Next
 	#EndRegion -- Order Trakker Test 2 - Move each part into every tab
 
-	#comments-end
+	#comments-end -skip test 1 and 2, remove this later
 
 	;TO-DO: use Shift+F10 instead of right-click in other places
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
@@ -1321,12 +1315,20 @@ Func TestTrakker()
 
 	#Region -- Order Trakker Test 4 - Print a shipping label
 	;Exit
+	Sleep(500)
 	Send("+{F10}g")
-	Exit
 
+	;Note: this next part is only confirmed to work on Windows 7, with the default printer set as Microsoft XPS Document Writer
+	WinWait("Save the file as", "XPS Document")
+	ControlSetText("Save the file as", "XPS Document", "Edit1", "TestShippingLabel.xps")
+	ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+	WinWait("Confirm Save As", "", 3)
+	If WinExists("Confirm Save As") Then
+		ControlClick("Confirm Save As", "", "Button1", "primary")
+	EndIf
 
 	#EndRegion -- Order Trakker Test 4 - Print a shipping label
-
+Exit
 	#Region -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
 
 	#EndRegion -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
