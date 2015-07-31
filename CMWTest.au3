@@ -1322,17 +1322,32 @@ Func TestTrakker()
 	WinWait("Save the file as", "XPS Document")
 	ControlSetText("Save the file as", "XPS Document", "Edit1", "TestShippingLabel.xps")
 	ControlClick("Save the file as", "XPS Document", "Button1", "primary")
-	WinWait("Confirm Save As", "", 3)
+	WinWait("Confirm Save As", "", 5)
 	If WinExists("Confirm Save As") Then
 		ControlClick("Confirm Save As", "", "Button1", "primary")
 	EndIf
 
 	#EndRegion -- Order Trakker Test 4 - Print a shipping label
-Exit
+
 	#Region -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
+	Sleep(500)
+	Send("+{F10}u")
+	WinWait("Enter Return Reason", "Save", 5)
+	If WinExists("Enter Return Reason", "Save") Then
+		ControlSetText("Enter Return Reason", "Save", "TEdit1", "Testing")
+	EndIf
+	ControlClick("Enter Return Reason", "Save", "TBitBtn1", "primary")
+
+	WinWait("Save the file as", "XPS Document")
+	ControlSetText("Save the file as", "XPS Document", "Edit1", "TestReturnLabel.xps")
+	ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+	WinWait("Confirm Save As", "", 5)
+	If WinExists("Confirm Save As") Then
+		ControlClick("Confirm Save As", "", "Button1", "primary")
+	EndIf
 
 	#EndRegion -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
-
+	Exit
 	#Region -- Order Trakker Test 6 - View/print the details of a WO
 
 	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
