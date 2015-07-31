@@ -1390,8 +1390,8 @@ Func TestTrakker()
 	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
 	#EndRegion -- Order Trakker Test 8 - Verify the watch list updates correctly
 
+	;this one is more or less covered in test 2
 	#Region -- Order Trakker Test 9 - Move parts to the delivered tab
-
 	#EndRegion -- Order Trakker Test 9 - Move parts to the delivered tab
 
 	Exit
