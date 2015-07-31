@@ -1347,11 +1347,32 @@ Func TestTrakker()
 	EndIf
 
 	#EndRegion -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
-	Exit
+
 	#Region -- Order Trakker Test 6 - View/print the details of a WO
+	Sleep(500)
+	Send("+{F10}v")
+	WinWait("Preview", "", 5)
+	If WinExists("Preview") Then
+		While StringInStr(WinGetText("Preview"), "of 0")
+			Sleep(200)
+		WEnd
+		Send("^p")
+		WinWait("Print", "", 5)
+		If WinExists("Print") Then
+			ControlClick("Print", "", "TButton3", "primary")
+			WinWait("Save the file as", "XPS Document")
+			ControlSetText("Save the file as", "XPS Document", "Edit1", "TestWODetails.xps")
+			ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+			WinWait("Confirm Save As", "", 5)
+			If WinExists("Confirm Save As") Then
+				ControlClick("Confirm Save As", "", "Button1", "primary")
+			EndIf
+		EndIf
+		WinClose("Preview")
+	EndIf
 
 	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
-
+	Exit
 	#Region -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
 
 	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
