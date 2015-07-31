@@ -1386,9 +1386,12 @@ Func TestTrakker()
 ;	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
 	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
 
+	;ODBC/SQL error when tring to view watch list, come back to this later
 	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
 	#EndRegion -- Order Trakker Test 8 - Verify the watch list updates correctly
+
 	#Region -- Order Trakker Test 9 - Move parts to the delivered tab
+
 	#EndRegion -- Order Trakker Test 9 - Move parts to the delivered tab
 
 	Exit
