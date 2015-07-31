@@ -1373,16 +1373,22 @@ Func TestTrakker()
 
 	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
 	Exit
+	;Instance folder error popping up, it creates a temp one so it's bypassable
+	;Logon failed error when trying to run reports, come back to this later
 	#Region -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
-
+;	Sleep(500)
+;	Send("!rc")
+;	WinWait("Instance Folder", "Error: Path not found", 5)
+;	If WinExists("Instance Folder", "Error: Path not found") Then
+;		ControlClick("Instance Folder", "Error: Path not found", "Button1", "primary")
+;	EndIf
+;	WinWait("Enter Values")
+;	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
 	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
 
 	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
-
 	#EndRegion -- Order Trakker Test 8 - Verify the watch list updates correctly
-
 	#Region -- Order Trakker Test 9 - Move parts to the delivered tab
-
 	#EndRegion -- Order Trakker Test 9 - Move parts to the delivered tab
 
 	Exit
