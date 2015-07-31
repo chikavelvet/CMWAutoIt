@@ -1272,10 +1272,8 @@ Func TestTrakker()
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
-	;the next two tests may not be fully working yet
-	;they also might be, I need to test them some more
+	#comments-start -skip test 1 and 2, remove this later
 
-	;	Exit
 	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 	;Check Warehouse Tab
 	nOTSwitchToTab(1)
@@ -1306,6 +1304,8 @@ Func TestTrakker()
 		Next
 	Next
 	#EndRegion -- Order Trakker Test 2 - Move each part into every tab
+
+	#comments-end
 
 	;TO-DO: use Shift+F10 instead of right-click in other places
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
