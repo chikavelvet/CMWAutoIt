@@ -23,16 +23,23 @@
 	- Only the first gadget (Uninventoried Vehicles) is checked in Dashboard
 	- No lock timeout is set up
 	- The CMWTest.csv file has:
-		- A valid Yard Owner username and password
-		- The correct Password of the Day
-		- A valid stock number and part code
-		- A valid CFT file path for Alphacom
-		- A valid stock number and part code (can be same as or different to first one)
+	- A valid Yard Owner username and password
+	- The correct Password of the Day
+	- A valid stock number and part code
+	- A valid CFT file path for Alphacom
+	- A valid stock number and part code (can be same as or different to first one)
 	- The CMWTestInvLogin.csv file has:
+<<<<<<< HEAD
 		- A valid Inventory-only username and password
 		- The correct Password of the Day
 		- 'image' in the second line
 		- A valid stock number and part code (can be same as or different to first two)
+=======
+	- A valid Inventory-only username and password
+	- The correct Password of the Day
+	- 'image' in the second line
+	- A valid stock number and part code (can be same as or different to first two
+>>>>>>> imagetestfixes
 
 	(This information is also in "PRE-TEST CHECKLIST.txt")
 
@@ -123,22 +130,22 @@ EndFunc   ;==>TerminalOpenLogin
 
 #comments-start
 
--- AccessCMWToolbar --
-This function uses a single controlled click and regular input to access any
-of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
-and any of the subitems in these three categories. The function uses a zero-based
-three dimensional indexing system, though the third dimension is optional, and
-only used in Settings->Security, which then has more options to choose from.
+	-- AccessCMWToolbar --
+	This function uses a single controlled click and regular input to access any
+	of the menus from the main toolbar in CMW. This includes File, Settings, and Help,
+	and any of the subitems in these three categories. The function uses a zero-based
+	three dimensional indexing system, though the third dimension is optional, and
+	only used in Settings->Security, which then has more options to choose from.
 
-- $i, $j, $k: Integers -
-These three integer inputs form a three dimensional coordinate that determines
-what specific toolbar function to access. The first value determines whether
-to open File, Settings, or Help initially; the second value determines which
-subitem to go to and open; and the third (optional) value is used if the subitem
-in turn presents multiple subitems to access (only currently found in Settings->Security).
+	- $i, $j, $k: Integers -
+	These three integer inputs form a three dimensional coordinate that determines
+	what specific toolbar function to access. The first value determines whether
+	to open File, Settings, or Help initially; the second value determines which
+	subitem to go to and open; and the third (optional) value is used if the subitem
+	in turn presents multiple subitems to access (only currently found in Settings->Security).
 
-Note: the $k value is defaulted to zero, but also not used unless $i and $j both
-are equal to 1 (Setting->Security case).
+	Note: the $k value is defaulted to zero, but also not used unless $i and $j both
+	are equal to 1 (Setting->Security case).
 
 #comments-end
 Func AccessCMWToolbar($i, $j, $k = 0)
@@ -565,7 +572,7 @@ EndFunc   ;==>WaitForUpdating
 
 Func TestDashboard()
 	;maximize window (does nothing if already maximized)
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 
 	;open dashboard
 	_OpenApp("dash")
@@ -923,11 +930,12 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 		MsgBox(0, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF, 3)
 		ControlSetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1", $fiConnectionFile)
 	EndIf
-	WinClose("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
+	Local $posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	#Region -- Terminal Test 1 - set up terminal settings and verify alphacom opens -done
 	CheckTermSettings($g_asNonDefaultLogin[4])
 	TerminalOpenLogin()
@@ -992,6 +1000,7 @@ EndFunc   ;==>TestTerminal
 ;NOTE: These variables and functions are deprecated.
 
 ;an array of valid pixel positions to click to access each tab (updates)
+
 Global $aiOTTabPos[15] = [30]
 ;an array of the number of parts in each tab (updates)
 Global $aiOTTabNum[15]
@@ -1025,7 +1034,7 @@ Global $sLastActiveTab = "Restocked"
 Func OTGetActiveTab()
 	Local $sOTText = WinGetText($g_wMain)
 	Local $sOTTextStripped = StringStripCR(StringStripWS($sOTText, 8))
-	;	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
+	ConsoleWrite("Last Active Tab: " & $sLastActiveTab & @CRLF & "Text: " & $sOTTextStripped & @CRLF)
 	Local $asOTTextMatch
 	If $sLastActiveTab == "CPU" Or $sLastActiveTab == "TCL" Then
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 3), 1)
@@ -1033,7 +1042,7 @@ Func OTGetActiveTab()
 		$asOTTextMatch = StringRegExp($sOTTextStripped, "Dispatch(?s)(.*)" & StringLeft($sLastActiveTab, 4), 1)
 	EndIf
 	Local $sActiveTab = $asOTTextMatch[0]
-	;	ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
+	ConsoleWrite("GETTING ACTIVE TAB: " & $sActiveTab & @CRLF & @CRLF)
 	Return $sActiveTab
 EndFunc   ;==>OTGetActiveTab
 
@@ -1063,10 +1072,10 @@ Func OTSetActiveTabNum()
 	Local $sActiveTab = OTGetActiveTab()
 	Local $asActiveInfoSplit = StringSplit($sActiveTab, "()")
 	Local $iTabIndex = _ArraySearch($asOTNameIndex, $asActiveInfoSplit[1])
-	;	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
-	;	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
+	ConsoleWrite("ActiveInfoSplit[0]: " & $asActiveInfoSplit[0] & @CRLF)
+	ConsoleWrite("ActiveInfoSplit[1]: " & $asActiveInfoSplit[1] & @CRLF)
 	If $asActiveInfoSplit[0] == 1 Then
-		;		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
+		ConsoleWrite("ArraySearch: " & $iTabIndex & @CRLF)
 		$aiOTTabNum[$iTabIndex] = 0
 	Else
 		Local $iTabNum = $asActiveInfoSplit[2]
@@ -1086,11 +1095,11 @@ EndFunc   ;==>OTSetActiveTabNum
 
 #comments-end
 Func OTSwitchToTab($iTargetTabIndex)
-	;ConsoleWrite("Tab Index to Switch to: " & $iTabIndex & @CRLF)
+	ConsoleWrite("Tab Index to Switch to: " & $iTargetTabIndex & @CRLF)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
 	If $iActiveTabIndex <> $iTargetTabIndex Then
 		Local $tempTab = OTGetActiveTab()
-		;		ConsoleWrite("Target x-pos: " & $aiOTTabPos[$iTargetTabIndex] & @CRLF)
+		ConsoleWrite("Target x-pos: " & $aiOTTabPos[$iTargetTabIndex] & @CRLF)
 		ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[$iTargetTabIndex], 10)
 		$sLastActiveTab = $tempTab
 	EndIf
@@ -1110,7 +1119,6 @@ EndFunc   ;==>OTSwitchToTab
 #comments-end
 Func OTSetInitialTabPos()
 	OTSetInitialNums()
-	OTUpdatePos()
 EndFunc   ;==>OTSetInitialTabPos
 
 #comments-start
@@ -1160,9 +1168,9 @@ Func OTUpdatePos()
 		$aiOTTabPos[$i + 1] = $aiOTTabPos[$i] + $aiOTTabBaseWidths[$i] + $iOffset
 		$aiOTTabCurrentWidths[$i] = $aiOTTabBaseWidths[$i] + $iOffset
 
-		;		ConsoleWrite(@CRLF & "$i: " & $i & @CRLF & "$iOffset: " & $iOffset & @CRLF & "$aiOTTabNum[$i]: " _
-		;			& $aiOTTabNum[$i] & @CRLF & "$aiOTTabPos[$i]: " & $aiOTTabPos[$i] & @CRLF & _
-		;			"$aiOTTabPos[$i+1]: " & $aiOTTabPos[$i+1] & @CRLF & "$aiOTTabBaseWidths[$i]: "  &$aiOTTabBaseWidths[$i] & @CRLF & @CRLF)
+		ConsoleWrite(@CRLF & "$i: " & $i & @CRLF & "$iOffset: " & $iOffset & @CRLF & "$aiOTTabNum[$i]: " _
+				 & $aiOTTabNum[$i] & @CRLF & "$aiOTTabPos[$i]: " & $aiOTTabPos[$i] & @CRLF & _
+				"$aiOTTabPos[$i+1]: " & $aiOTTabPos[$i + 1] & @CRLF & "$aiOTTabBaseWidths[$i]: " & $aiOTTabBaseWidths[$i] & @CRLF & @CRLF)
 	Next
 EndFunc   ;==>OTUpdatePos
 
@@ -1179,82 +1187,222 @@ EndFunc   ;==>OTUpdatePos
 #comments-end
 Func OTSendPartToTab($iTargetTabIndex)
 	Local $iActiveTabIndex = OTGetActiveTabIndex()
-	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
+	If $aiOTTabNum[$iActiveTabIndex] > 0 Then
+		ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
 
-	$aiOTTabNum[$iActiveTabIndex] -= 1
-	$aiOTTabNum[$iTargetTabIndex] += 1
-	OTUpdatePos()
+		$aiOTTabNum[$iActiveTabIndex] -= 1
+		$aiOTTabNum[$iTargetTabIndex] += 1
+		OTUpdatePos()
+	EndIf
+	;_ArrayDisplay($aiOTTabPos)
 EndFunc   ;==>OTSendPartToTab
+
+Func nOTSwitchToTab($iTabIndex)
+	Local $sLetter
+	Switch $iTabIndex
+		Case 0
+			$sLetter = 'i'
+		Case 1
+			$sLetter = 'w'
+		Case 2
+			$sLetter = 's'
+		Case 3
+			$sLetter = 'y'
+		Case 4
+			$sLetter = 'b'
+		Case 5
+			$sLetter = 'a'
+		Case 6
+			$sLetter = 'v'
+		Case 7
+			$sLetter = 'n'
+		Case 8
+			$sLetter = 'c'
+		Case 9
+			$sLetter = 't'
+		Case 10
+			$sLetter = 'l'
+		Case 11
+			$sLetter = 'f'
+		Case 12
+			$sLetter = 'e'
+		Case 13
+			$sLetter = 'd'
+		Case 14
+			$sLetter = 'o'
+	EndSwitch
+
+	Send("!v" & $sLetter)
+	OTWaitForTabLoad()
+EndFunc   ;==>nOTSwitchToTab
+
+Func nOTSendPartToTab($iTargetTabIndex)
+	ControlClick($g_wMain, "", "TColorButton" & (UBound($aiOTTabPos) - 1) - $iTargetTabIndex, "primary")
+	OTWaitForTabLoad()
+EndFunc   ;==>nOTSendPartToTab
+
+#comments-start
+
+	-- OTWaitForTabLoad --
+	This function waits for the active tab to fully load before moving on.
+	It relies on the behavior of WinGetText, which when called will not
+	continue the script until it's able to get the text of the specified
+	window, and also that the text of the window is apparently unretrievable
+	until the tab information has fully loaded. The window it checks is
+	customizable, though it is always $g_wMain in this Test.
+
+	- $wWindow: Window handle -
+	This specifies the window to search for text in. By default, and in every
+	use during this Test, it is $g_wMain.
+
+	Note: this function also returns the text that it gets. Generally the
+	function will be called such that its return information is unused (as
+	in the case of simply pausing the script). Its return value may have
+	as-of-now unrecognized use, and it doesn't reduce efficiency, so it
+	has been left.
+
+#comments-end
+Func OTWaitForTabLoad($wWindow = $g_wMain)
+	Return WinGetText($wWindow)
+EndFunc   ;==>OTWaitForTabLoad
 
 #EndRegion -- Order Trakker Test Vars and Funcs --
 
 Func TestTrakker()
 	_OpenApp("trak")
-	While Not WinExists("Setup")
-		WinActivate($g_wMain)
-		AccessCMWToolbar(1, 0)
-		WinWait("Setup", "", 5)
-	WEnd
-	Local $posSetupWin = WinGetPos("Setup")
-	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
-
-
-	OTSetInitialTabPos()
-
-	_ArrayDisplay($aiOTTabCurrentWidths)
-
-	;Sleep(500)
+	OTWaitForTabLoad()
 
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
-	;the next two tests may not be fully working yet
+	#comments-start -skip test 1 and 2, remove this later
 
 	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 	;Check Warehouse Tab
-	OTSwitchToTab(1)
+	nOTSwitchToTab(1)
 	CaptureScreen($g_wMain, "WarehouseTab1", "OrderTrakkerTest")
-	OTSendPartToTab(0)
+	nOTSendPartToTab(0)
 
 	;Check Brokered Tab
-	OTSwitchToTab(4)
+	nOTSwitchToTab(4)
 	CaptureScreen($g_wMain, "BrokeredTab1", "OrderTrakkerTest")
-	OTSendPartToTab(0)
+	nOTSendPartToTab(0)
 
 	;Check Yard Tab
-	OTSwitchToTab(3)
+	nOTSwitchToTab(3)
 	CaptureScreen($g_wMain, "YardTab1", "OrderTrakkerTest")
-	OTSendPartToTab(0)
+	nOTSendPartToTab(0)
 	Sleep(500)
 	#EndRegion -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 
-
 	#Region -- Order Trakker Test 2 - Move each part into every tab
-	OTSwitchToTab(0)
+	nOTSwitchToTab(0)
 	CaptureScreen($g_wMain, "", "Part012Dispatch")
 	For $i = 0 To 2
-		OTSwitchToTab(0)
-		Sleep(500)
+		nOTSwitchToTab(0)
 		For $j = 1 To UBound($aiOTTabPos) - 2
-			OTSendPartToTab($j)
-			Sleep(500)
-			OTSwitchToTab($j)
+			nOTSendPartToTab($j)
+			nOTSwitchToTab($j)
 			CaptureScreen($g_wMain, "Part" & $i & "Tab" & $j)
 		Next
 	Next
 	#EndRegion -- Order Trakker Test 2 - Move each part into every tab
 
-	Exit
-	;TO-DO: figure out how to make Test 1 and 2 work
+	#comments-end -skip test 1 and 2, remove this later
 
+	;TO-DO: use Shift+F10 instead of right-click in other places
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
 
-	ControlClick($g_wMain, "", "TPageControl1", "primary", 1, $aiOTTabPos[0], 10)
-	ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
-	Send("{Down 7}{Enter}")
+	;ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
+	Send("{Tab 2}{Down}{Up}")
+	Sleep(500)
+	Send("!rh")
 	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
+	ControlClick("Show History", "", "TBitBtn1", "primary")
 
 	#EndRegion -- Order Trakker Test 3 - Verify that the history is correct
+
+	#Region -- Order Trakker Test 4 - Print a shipping label
+	;Exit
+	Sleep(500)
+	Send("+{F10}g")
+
+	;Note: this next part is only confirmed to work on Windows 7, with the default printer set as Microsoft XPS Document Writer
+	WinWait("Save the file as", "XPS Document")
+	ControlSetText("Save the file as", "XPS Document", "Edit1", "TestShippingLabel.xps")
+	ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+	WinWait("Confirm Save As", "", 5)
+	If WinExists("Confirm Save As") Then
+		ControlClick("Confirm Save As", "", "Button1", "primary")
+	EndIf
+
+	#EndRegion -- Order Trakker Test 4 - Print a shipping label
+
+	#Region -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
+	Sleep(500)
+	Send("+{F10}u")
+	WinWait("Enter Return Reason", "Save", 5)
+	If WinExists("Enter Return Reason", "Save") Then
+		ControlSetText("Enter Return Reason", "Save", "TEdit1", "Testing")
+	EndIf
+	ControlClick("Enter Return Reason", "Save", "TBitBtn1", "primary")
+
+	WinWait("Save the file as", "XPS Document")
+	ControlSetText("Save the file as", "XPS Document", "Edit1", "TestReturnLabel.xps")
+	ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+	WinWait("Confirm Save As", "", 5)
+	If WinExists("Confirm Save As") Then
+		ControlClick("Confirm Save As", "", "Button1", "primary")
+	EndIf
+
+	#EndRegion -- Order Trakker Test 5 - Print a return shipping label / with return reasoning turned on
+
+	#Region -- Order Trakker Test 6 - View/print the details of a WO
+	Sleep(500)
+	Send("+{F10}v")
+	WinWait("Preview", "", 5)
+	If WinExists("Preview") Then
+		While StringInStr(WinGetText("Preview"), "of 0")
+			Sleep(200)
+		WEnd
+		Send("^p")
+		WinWait("Print", "", 5)
+		If WinExists("Print") Then
+			ControlClick("Print", "", "TButton3", "primary")
+			WinWait("Save the file as", "XPS Document")
+			ControlSetText("Save the file as", "XPS Document", "Edit1", "TestWODetails.xps")
+			ControlClick("Save the file as", "XPS Document", "Button1", "primary")
+			WinWait("Confirm Save As", "", 5)
+			If WinExists("Confirm Save As") Then
+				ControlClick("Confirm Save As", "", "Button1", "primary")
+			EndIf
+		EndIf
+		WinClose("Preview")
+	EndIf
+
+	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
+	Exit
+	;Instance folder error popping up, it creates a temp one so it's bypassable
+	;Logon failed error when trying to run reports, come back to this later
+	#Region -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
+;	Sleep(500)
+;	Send("!rc")
+;	WinWait("Instance Folder", "Error: Path not found", 5)
+;	If WinExists("Instance Folder", "Error: Path not found") Then
+;		ControlClick("Instance Folder", "Error: Path not found", "Button1", "primary")
+;	EndIf
+;	WinWait("Enter Values")
+;	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
+	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
+
+	;ODBC/SQL error when tring to view watch list, come back to this later
+	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
+	#EndRegion -- Order Trakker Test 8 - Verify the watch list updates correctly
+
+	;this one is more or less covered in test 2
+	#Region -- Order Trakker Test 9 - Move parts to the delivered tab
+	#EndRegion -- Order Trakker Test 9 - Move parts to the delivered tab
+
 	Exit
 	Return "Order Trakker Test Complete"
 EndFunc   ;==>TestTrakker
@@ -1311,34 +1459,18 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	#Region -- Imaging Test 3 - Add single image using browse image search window -done
 
 	ControlClick($g_wMain, "Imaging", "TAdvToolPanelTab1", "primary", 1, 5, 150)
-	ControlClick($g_wMain, "Imaging", "TDirectoryListBoxEx1", "primary", 2, 1, 1)
-	Local $asPicture = StringSplit($g_fiScreenCaptureFolder, "\")
-	;_ArrayDisplay($asPicture)
-	;Opt("SendKeyDelay", 100)
-	;	For $i = 2 To $asPicture[0]
-	;		Sleep(100)
-	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down}")
-	;		Send(StringLower(StringLeft($asPicture[$i], 1)))
-	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-	;		Sleep(150)
-	;	Next
-	$j = 0
-	For $i In $asPicture
-		If $j >= 2 Then
-			Sleep(500)
-			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
-			Sleep(100)
-			Send($i)
-			Sleep(100)
-			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-			;Sleep(5000))
-		EndIf
-		$j += 1
-	Next
-	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
-	Send($sTestSubDir)
-	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-	WinWait($g_wMain, "c: [OS]", 2)
+	ControlClick($g_wMain, "Imaging", "TAdvGlowButton14", "primary")
+	WinWait("Folder Input")
+	ControlSetText("Folder Input", "", "TEdit1", $g_fiScreenCaptureFolder & "\" & $sTestSubDir)
+	ControlClick("Folder Input", "", "TButton2", "primary")
+
+;	ControlClick($g_wMain, "Imaging", "TDirectoryListBoxEx1", "primary", 2, 1, 1)
+
+;	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
+;	Send($sTestSubDir)
+;	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
+;	WinWait($g_wMain, "c: [OS]", 2)
+
 
 	ControlFocus($g_wMain, "Imaging", "TAdvStringGrid1")
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
@@ -1364,9 +1496,9 @@ Func TestImaging()
 
 	#Region -- Imaging Test 4 - Add multiple images using Windows Explorer
 	Opt("SendKeyDelay", 5)
-	ControlFocus($g_wMain, "Imaging", "TAdvStringGrid1")
+	;ControlClick($g_wMain, "Imaging", "TAdvStringGrid1", "primary", 1, 10, 10)
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
-
+;Exit
 	Send("{LWIN}")
 	Sleep(1000)
 	Send($g_fiScreenCaptureFolder & "\ImagingTest\{Enter}")
@@ -1412,30 +1544,31 @@ Func TestImaging()
 	#EndRegion -- Imaging Test 5 - Delete images -done
 
 	#Region -- Imaging Test 6 - Verify import images works
+	If $g_sPOD <> "*" Then
+		CaptureScreen($g_wMain, Null, "ImagingTest")
+		Send("!fi")
+		ConsoleWrite($g_sPOD & @CRLF)
+		WinWait("Password of the Day")
+		ControlSetText("Password of the Day", "", "TEdit1", $g_sPOD)
+		ControlClick("Password of the Day", "", "TBitBtn2", "primary")
 
-	CaptureScreen($g_wMain, Null, "ImagingTest")
-	Send("!fi")
-	ConsoleWrite($g_sPOD & @CRLF)
-	WinWait("Password of the Day")
-	ControlSetText("Password of the Day", "", "TEdit1", $g_sPOD)
-	ControlClick("Password of the Day", "", "TBitBtn2", "primary")
-
-	WinWait("CMW - Image Import")
-	Local $fiCurImageDestPath = ControlGetText("CMW - Image Import", "", "TAdvEdit1")
-	ControlSetText("CMW - Image Import", "", "TAdvEdit2", $g_fiScreenCaptureFolder & "\ImagingTest")
-	ControlClick("CMW - Image Import", "", "TAdvGlowButton3", "primary")
-	Sleep(1000)
-	ControlClick("CMW - Image Import", "", "TAdvGlowButton1", "primary")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished")
-	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished", "Button1", "primary")
-	WinClose("CMW - Image Import")
-	WinWaitActive($g_wMain)
-	Send("{LWin}")
-	Sleep(100)
-	Send($fiCurImageDestPath & "\" & @YEAR & "{Enter}")
-	WinWait(@YEAR, "Address")
-	CaptureScreen(@YEAR, "ImportedLocation", "ImagingTest")
-	WinClose(@YEAR)
+		WinWait("CMW - Image Import")
+		Local $fiCurImageDestPath = ControlGetText("CMW - Image Import", "", "TAdvEdit1")
+		ControlSetText("CMW - Image Import", "", "TAdvEdit2", $g_fiScreenCaptureFolder & "\ImagingTest")
+		ControlClick("CMW - Image Import", "", "TAdvGlowButton3", "primary")
+		Sleep(1000)
+		ControlClick("CMW - Image Import", "", "TAdvGlowButton1", "primary")
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished")
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished", "Button1", "primary")
+		WinClose("CMW - Image Import")
+		WinWaitActive($g_wMain)
+		Send("{LWin}")
+		Sleep(100)
+		Send($fiCurImageDestPath & "\" & @YEAR & "{Enter}")
+		WinWait(@YEAR, "Address")
+		CaptureScreen(@YEAR, "ImportedLocation", "ImagingTest")
+		WinClose(@YEAR)
+	EndIf
 
 	#EndRegion -- Imaging Test 6 - Verify import images works
 	#comments-start
@@ -1549,7 +1682,7 @@ Func TestImaging()
 
 		#EndRegion -- Imaging Test 11 - Verify eBay button works from viewer
 	#comments-end
-	ControlClick($g_wMain, "", "TAdvGlowButton14")
+	ControlClick($g_wMain, "", "TAdvGlowButton17")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
 		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
@@ -1569,7 +1702,7 @@ EndFunc   ;==>TestImaging
 #Region --- REPORTS TEST FUNCTION ---
 
 Func TestReports()
-;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
+	;	WinSetState($g_wMain, "", @SW_MAXIMIZE)
 	_OpenApp("report")
 	If ProcessExists("cView.exe") Then
 		ProcessClose("cView.exe")
@@ -1828,7 +1961,7 @@ ConsoleWrite(TestDashboard() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
 ;ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
-;ConsoleWrite(TestSettings() & @CRLF)
+ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 2
 
