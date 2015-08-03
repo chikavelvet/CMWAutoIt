@@ -32,7 +32,7 @@
 		- A valid Inventory-only username and password
 		- The correct Password of the Day
 		- 'image' in the second line
-		- A valid stock number and part code (can be same as or different to first two
+		- A valid stock number and part code (can be same as or different to first two)
 
 	(This information is also in "PRE-TEST CHECKLIST.txt")
 
