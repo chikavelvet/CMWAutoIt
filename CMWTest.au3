@@ -1267,7 +1267,7 @@ Func TestTrakker()
 	;Assumes set up and parts sales are already completed
 	;TO-DO: do this instead of assuming it's done
 
-	#comments-start -skip test 1 and 2, remove this later
+;	#comments-start -skip test 1 and 2, remove this later
 
 	#Region -- Order Trakker Test 1 - verify that when you sell each part they're put in the correct tab
 	;Check Warehouse Tab
@@ -1300,15 +1300,18 @@ Func TestTrakker()
 	Next
 	#EndRegion -- Order Trakker Test 2 - Move each part into every tab
 
-	#comments-end -skip test 1 and 2, remove this later
+;	#comments-end -skip test 1 and 2, remove this later
 
 	;TO-DO: use Shift+F10 instead of right-click in other places
 	#Region -- Order Trakker Test 3 - Verify that the history is correct
-
+	;Exit
 	;ControlClick($g_wMain, "", "TAdvStringGrid1", "secondary", 1, 20, 40)
-	Send("{Tab 2}{Down}{Up}")
 	Sleep(500)
-	Send("!rh")
+	Send("{Tab}{Down}{Up}")
+	;Sleep(1000)
+	Send("{Tab}{Down}{Up}")
+	Sleep(1000)
+	Send("+{F10}h")
 	CaptureScreen($g_wMain, "PartHistory", "OrderTrakkerTest")
 	ControlClick("Show History", "", "TBitBtn1", "primary")
 
