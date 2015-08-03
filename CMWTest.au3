@@ -922,7 +922,8 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 		MsgBox(0, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF, 3)
 		ControlSetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1", $fiConnectionFile)
 	EndIf
-	WinClose("[CLASS:TfrmSetup_CMW; TITLE:Setup]")
+	Local $posSetupWin = WinGetPos("Setup")
+	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 EndFunc   ;==>CheckTermSettings
 
 Func TestTerminal()
@@ -1461,8 +1462,11 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
 	;		Sleep(150)
 	;	Next
+
+	;I feel like using a For ... To ... would reduce this down
 	$j = 0
 	For $i In $asPicture
+	;	ConsoleWrite("Typing: " & $i & @CRLF)
 		If $j >= 2 Then
 			Sleep(500)
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
@@ -1472,6 +1476,7 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
 			;Sleep(5000))
 		EndIf
+	;	ConsoleWrite("Finished" & @CRLF)
 		$j += 1
 	Next
 	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
@@ -1503,7 +1508,7 @@ Func TestImaging()
 
 	#Region -- Imaging Test 4 - Add multiple images using Windows Explorer
 	Opt("SendKeyDelay", 5)
-	ControlFocus($g_wMain, "Imaging", "TAdvStringGrid1")
+	ControlClick($g_wMain, "Imaging", "TAdvStringGrid1", "primary", 1, 10, 10)
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
 
 	Send("{LWIN}")
@@ -1961,8 +1966,8 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-ConsoleWrite(TestDashboard() & @CRLF)
-ConsoleWrite(TestTerminal() & @CRLF)
+;ConsoleWrite(TestDashboard() & @CRLF)
+;ConsoleWrite(TestTerminal() & @CRLF)
 ConsoleWrite(TestImaging() & @CRLF)
 ConsoleWrite(TestReports() & @CRLF)
 ConsoleWrite(TestTrakker() & @CRLF)
