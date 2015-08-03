@@ -1451,38 +1451,18 @@ Func ImageTest123($sTestSubDir = "ImagingTest")
 	#Region -- Imaging Test 3 - Add single image using browse image search window -done
 
 	ControlClick($g_wMain, "Imaging", "TAdvToolPanelTab1", "primary", 1, 5, 150)
-	ControlClick($g_wMain, "Imaging", "TDirectoryListBoxEx1", "primary", 2, 1, 1)
-	Local $asPicture = StringSplit($g_fiScreenCaptureFolder, "\")
-	;_ArrayDisplay($asPicture)
-	;Opt("SendKeyDelay", 100)
-	;	For $i = 2 To $asPicture[0]
-	;		Sleep(100)
-	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down}")
-	;		Send(StringLower(StringLeft($asPicture[$i], 1)))
-	;		ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-	;		Sleep(150)
-	;	Next
+	ControlClick($g_wMain, "Imaging", "TAdvGlowButton14", "primary")
+	WinWait("Folder Input")
+	ControlSetText("Folder Input", "", "TEdit1", $g_fiScreenCaptureFolder & "\" & $sTestSubDir)
+	ControlClick("Folder Input", "", "TButton2", "primary")
 
-	;I feel like using a For ... To ... would reduce this down
-	$j = 0
-	For $i In $asPicture
-	;	ConsoleWrite("Typing: " & $i & @CRLF)
-		If $j >= 2 Then
-			Sleep(500)
-			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
-			Sleep(100)
-			Send($i)
-			Sleep(100)
-			ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-			;Sleep(5000))
-		EndIf
-	;	ConsoleWrite("Finished" & @CRLF)
-		$j += 1
-	Next
-	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
-	Send($sTestSubDir)
-	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
-	WinWait($g_wMain, "c: [OS]", 2)
+;	ControlClick($g_wMain, "Imaging", "TDirectoryListBoxEx1", "primary", 2, 1, 1)
+
+;	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Down 2}")
+;	Send($sTestSubDir)
+;	ControlSend($g_wMain, "", "TDirectoryListBoxEx1", "{Enter}")
+;	WinWait($g_wMain, "c: [OS]", 2)
+
 
 	ControlFocus($g_wMain, "Imaging", "TAdvStringGrid1")
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
@@ -1508,9 +1488,9 @@ Func TestImaging()
 
 	#Region -- Imaging Test 4 - Add multiple images using Windows Explorer
 	Opt("SendKeyDelay", 5)
-	ControlClick($g_wMain, "Imaging", "TAdvStringGrid1", "primary", 1, 10, 10)
+	;ControlClick($g_wMain, "Imaging", "TAdvStringGrid1", "primary", 1, 10, 10)
 	ControlSend($g_wMain, "Imaging", "TAdvStringGrid1", "{Space}")
-
+;Exit
 	Send("{LWIN}")
 	Sleep(1000)
 	Send($g_fiScreenCaptureFolder & "\ImagingTest\{Enter}")
@@ -1556,30 +1536,31 @@ Func TestImaging()
 	#EndRegion -- Imaging Test 5 - Delete images -done
 
 	#Region -- Imaging Test 6 - Verify import images works
+	If $g_sPOD <> "*" Then
+		CaptureScreen($g_wMain, Null, "ImagingTest")
+		Send("!fi")
+		ConsoleWrite($g_sPOD & @CRLF)
+		WinWait("Password of the Day")
+		ControlSetText("Password of the Day", "", "TEdit1", $g_sPOD)
+		ControlClick("Password of the Day", "", "TBitBtn2", "primary")
 
-	CaptureScreen($g_wMain, Null, "ImagingTest")
-	Send("!fi")
-	ConsoleWrite($g_sPOD & @CRLF)
-	WinWait("Password of the Day")
-	ControlSetText("Password of the Day", "", "TEdit1", $g_sPOD)
-	ControlClick("Password of the Day", "", "TBitBtn2", "primary")
-
-	WinWait("CMW - Image Import")
-	Local $fiCurImageDestPath = ControlGetText("CMW - Image Import", "", "TAdvEdit1")
-	ControlSetText("CMW - Image Import", "", "TAdvEdit2", $g_fiScreenCaptureFolder & "\ImagingTest")
-	ControlClick("CMW - Image Import", "", "TAdvGlowButton3", "primary")
-	Sleep(1000)
-	ControlClick("CMW - Image Import", "", "TAdvGlowButton1", "primary")
-	WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished")
-	ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished", "Button1", "primary")
-	WinClose("CMW - Image Import")
-	WinWaitActive($g_wMain)
-	Send("{LWin}")
-	Sleep(100)
-	Send($fiCurImageDestPath & "\" & @YEAR & "{Enter}")
-	WinWait(@YEAR, "Address")
-	CaptureScreen(@YEAR, "ImportedLocation", "ImagingTest")
-	WinClose(@YEAR)
+		WinWait("CMW - Image Import")
+		Local $fiCurImageDestPath = ControlGetText("CMW - Image Import", "", "TAdvEdit1")
+		ControlSetText("CMW - Image Import", "", "TAdvEdit2", $g_fiScreenCaptureFolder & "\ImagingTest")
+		ControlClick("CMW - Image Import", "", "TAdvGlowButton3", "primary")
+		Sleep(1000)
+		ControlClick("CMW - Image Import", "", "TAdvGlowButton1", "primary")
+		WinWait("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished")
+		ControlClick("[CLASS:#32770; TITLE:Checkmate Workstation]", "Import Process Finished", "Button1", "primary")
+		WinClose("CMW - Image Import")
+		WinWaitActive($g_wMain)
+		Send("{LWin}")
+		Sleep(100)
+		Send($fiCurImageDestPath & "\" & @YEAR & "{Enter}")
+		WinWait(@YEAR, "Address")
+		CaptureScreen(@YEAR, "ImportedLocation", "ImagingTest")
+		WinClose(@YEAR)
+	EndIf
 
 	#EndRegion -- Imaging Test 6 - Verify import images works
 	#comments-start
@@ -1693,7 +1674,7 @@ Func TestImaging()
 
 		#EndRegion -- Imaging Test 11 - Verify eBay button works from viewer
 	#comments-end
-	ControlClick($g_wMain, "", "TAdvGlowButton14")
+	ControlClick($g_wMain, "", "TAdvGlowButton17")
 	WinWait($g_wMessage, "Never ask again", 5)
 	If WinExists($g_wMessage) Then
 		ControlClick($g_wMessage, "", "TAdvOfficeRadioButton2")
