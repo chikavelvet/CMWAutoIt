@@ -27,7 +27,7 @@
 	Currently they only hold a CLASS definition, but could also include title text
 	and Regular Expressions, if necessary.
 
-	Oh I got a comment now.s
+	Oh I got a comment now.
 
 #comments-end
 

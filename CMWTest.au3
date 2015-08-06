@@ -36,8 +36,6 @@
 
 	(This information is also in "PRE-TEST CHECKLIST.txt")
 
-	I had a comment first.
-
 #comments-end
 
 #include <Header.au3>
