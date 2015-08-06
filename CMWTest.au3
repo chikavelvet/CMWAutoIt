@@ -36,6 +36,8 @@
 
 	(This information is also in "PRE-TEST CHECKLIST.txt")
 
+	I had a comment first.
+
 #comments-end
 
 #include <Header.au3>
@@ -114,7 +116,7 @@ Func TerminalOpenLogin($hWnd = "[CLASS:AfxFrameOrView80]")
 	Send("{CAPSLOCK ON}" & StringLower($g_sUserPwd) & "{Enter}")
 
 	If TermTextWait($g_wTerminal, "Ready", $hWnd, "Find and Sell") = -1 Then
-		MsgBox(0, "No Find and Sell Found", "Something went wrong.")
+		MsgBox($IDOK, "No Find and Sell Found", "Something went wrong.")
 		Exit
 	EndIf
 EndFunc   ;==>TerminalOpenLogin
@@ -920,7 +922,7 @@ Func CheckTermSettings($fiConnectionFile = $g_fiDefaultConnectionFile)
 	ControlSend("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TPageControl1", "^{Tab 2}")
 	Local $fiCurConnectionFile = ControlGetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1")
 	If $fiCurConnectionFile <> $fiConnectionFile Then
-		MsgBox(0, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF, 3)
+		MsgBox($IDOK, "Changing Connection File", "Current connection file: " & $fiCurConnectionFile & @CRLF & "New connection file: " & $fiConnectionFile & @CRLF, 3)
 		ControlSetText("[CLASS:TfrmSetup_CMW; TITLE:Setup]", "", "TLabeledEdit1", $fiConnectionFile)
 	EndIf
 	Local $posSetupWin = WinGetPos("Setup")

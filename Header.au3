@@ -37,6 +37,7 @@
 #include <File.au3>
 #include <ScreenCapture.au3>
 #include <FileConstants.au3>
+#include <AutoItConstants.au3>
 
 Opt("WinDetectHiddenText", 1); 0: don't detect, 1: detect
 
@@ -75,7 +76,7 @@ Global $g_fiScreenCaptureFolder = @AppDataDir & "\AutoIt\Screen Captures\" & $g_
 ;this option makes title-matching not have to start at the beginning of the title
 ;makes some things easier, but could cause problems, so change if necessary
 ;(I don't believe anything done so far requires this)
-AutoItSetOption("WinTitleMatchMode", 2)
+Opt("WinTitleMatchMode", 2)
 HotKeySet("{END}", Terminate)
 
 Func Terminate()
@@ -98,7 +99,7 @@ Func _EndProg()
 	If @exitCode = 2 Then; if the flag is set to 1
 		WinClose($g_wMain); close the main CMW window
 	EndIf
-	MsgBox(0, "Script Execution Notification", "Script has ended."); notify that the script is ending
+	MsgBox($IDOK, "Script Execution Notification", "Script has ended."); notify that the script is ending
 EndFunc   ;==>_EndProg
 
 OnAutoItExitRegister("_EndProg")
@@ -125,13 +126,12 @@ Func _UpdateWS()
 	Local $asCMWType = StringSplit($fiSettings[0], "=", 2)
 	Local $sUpgradePrefix
 
-	ConsoleWrite("Here1" & @CRLF)
 	;determining prefix to executable based on CMW type
 	Switch $asCMWType[1]
 		Case "qa"
 			$sUpgradePrefix = "qaupgrade"
 		Case Else
-			MsgBox(0, "Error", "Invalid CMW Type (check cmwautoupdate.ini)")
+			MsgBox($IDOK, "Error", "Invalid CMW Type (check cmwautoupdate.ini)")
 			Exit 2
 	EndSwitch
 
@@ -140,7 +140,7 @@ Func _UpdateWS()
 
 	;if it goes to log-in, then no update necessary
 	If WinExists("Log in", "OK") Then
-		MsgBox(0, "No Update Required", "This workstation does not need to be updated.")
+		MsgBox($IDOK, "No Update Required", "This workstation does not need to be updated.")
 		_OpenWS() ;TO-DO: this could cause an infinite loop, see what you can do
 	EndIf
 
@@ -168,7 +168,7 @@ Func _UpdateWS()
 	;TO-DO: find a way to automatically close the message box when dl completes,
 	;instead of having to wait for the timeout anyway
 	InetGet($dlURL, $sExecutablePath, 0, 1)
-	MsgBox(0, "Please wait", "CMW is downloading in the background, and will install when done.", 5)
+	MsgBox($IDOK, "Please wait", "CMW is downloading in the background, and will install when done.", 5)
 
 	;wait 5 minutes for the file to download
 	Local $tBegin = TimerInit()
@@ -178,17 +178,18 @@ Func _UpdateWS()
 		EndIf
 		Sleep(1000)
 	WEnd
-	;ConsoleWrite("Found exec" & @CRLF & $sExecutablePath & @CRLF)
+	ConsoleWrite("Found exec" & @CRLF & $sExecutablePath & @CRLF)
+	Sleep(5000)
 
 	;if is isn't done after 5 minutes, error
 	If Not FileExists($sExecutablePath) Then
-		MsgBox(0, "File not Found", "Download did not complete or took longer than five minutes. Please retry.")
+		MsgBox($IDOK, "File not Found", "Download did not complete or took longer than five minutes. Please retry.")
 		Exit 2
 	EndIf
 
-	;ConsoleWrite("About to run exec" & @CRLF)
+	ConsoleWrite("About to run exec" & @CRLF)
 	Run($sExecutablePath)
-	;ConsoleWrite("Ran exec" & @CRLF)
+	ConsoleWrite("Ran exec" & @CRLF)
 
 	;wait for the upgrade to finish
 	WinWait("cmwupdater Setup", "Update is finished")
@@ -196,7 +197,7 @@ Func _UpdateWS()
 	If WinExists("cmwupdater Setup") Then
 		WinActivate("cmwupdater Setup", "Update is finished")
 		ControlClick("cmwupdater Setup", "OK", "Button1")
-		MsgBox(0, "Workstation Updated", "          Workstation Updated Successfully          ", 5)
+		MsgBox($IDOK, "Workstation Updated", "          Workstation Updated Successfully          ", 5)
 		Return 0
 	EndIf
 	Return -1
@@ -229,7 +230,7 @@ Func LogIn($fiLoginFile = $g_fiDefaultLoginFile)
 		ControlSetText($g_wPassword, "", "TEdit1", $g_sUserPwd)
 		ControlClick($g_wPassword, "", "TBitBtn2")
 	Else
-		MsgBox(0, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
+		MsgBox($IDOK, "Warning", "CMW did not start or not seeing OK button - Ending Script Execution")
 		Exit 2
 	EndIf
 EndFunc
@@ -455,7 +456,7 @@ Func TermTextWait($hTitle, $hText, $hControlID, $sTextToSearch, $tTimeout = 0)
 		EndIf
 	WEnd
 
-	MsgBox(0, "Error", "Could not find text before time out.")
+	MsgBox($IDOK, "Error", "Could not find text before time out.")
 
 EndFunc   ;==>TermTextWait
 
@@ -556,7 +557,7 @@ EndFunc   ;==>CaptureScreen
 #comments-end
 Func CheckError()
 	If WinExists("[CLASS:madExceptWndClass]") Then
-		MsgBox(0, "Error Encountered", "Ending Script")
+		MsgBox($IDOK, "Error Encountered", "Ending Script")
 		Exit
 	EndIf
 EndFunc   ;==>CheckError
