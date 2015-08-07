@@ -354,10 +354,10 @@ Func TestSettings()
 	;it will then re-log back in to CMW
 	;the first part works fine, the second part has some issues
 	;	WinWaitNotActive($g_wMain, "", 350)
-	;	ConsoleWrite("Not active" & @CRLF)
 	;	WinActivate($g_wPassword)
 	;	WinSetState($g_wPassword, "", @SW_SHOW)
 	;	WinActivate($g_wMain)
+	CaptureScreen($g_wPassword, "TimeoutTest", "SettingsTest")
 	;Requires user input here
 	;TO-DO: make it not require user input
 	;LogIn(@AppDataDir & "\AutoIt\CMWTest.csv")
@@ -460,6 +460,7 @@ Func TestSettings()
 	Send("^{Tab 3}")
 	;ControlClick("Setup", "", "Edit5", "primary")
 	ControlSend("Setup", "", "Edit5", "{Down}")
+	CaptureScreen($g_wMain, "PrinterSettings", "SettingsTest")
 	$posSetupWin = WinGetPos("Setup")
 	MouseClick("primary", $posSetupWin[0] + 75, $posSetupWin[1] + 550)
 	#EndRegion -- Settings Test 11 - Edit printer settings
@@ -470,7 +471,6 @@ EndFunc   ;==>TestSettings
 #EndRegion --- SETTINGS TEST FUNCTION ---
 
 #Region --- DASHBOARD TEST FUNCTION ---
-
 
 #comments-start
 
@@ -1377,19 +1377,19 @@ Func TestTrakker()
 	EndIf
 
 	#EndRegion -- Order Trakker Test 6 - View/print the details of a WO
-	Exit
 	;Instance folder error popping up, it creates a temp one so it's bypassable
 	;Logon failed error when trying to run reports, come back to this later
 	#Region -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
-;	Sleep(500)
-;	Send("!rc")
-;	WinWait("Instance Folder", "Error: Path not found", 5)
-;	If WinExists("Instance Folder", "Error: Path not found") Then
-;		ControlClick("Instance Folder", "Error: Path not found", "Button1", "primary")
-;	EndIf
-;	WinWait("Enter Values")
-;	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
+	Sleep(500)
+	Send("!rc")
+	WinWait("Instance Folder", "Error: Path not found", 5)
+	If WinExists("Instance Folder", "Error: Path not found") Then
+		ControlClick("Instance Folder", "Error: Path not found", "Button1", "primary")
+	EndIf
+	WinWait("Enter Values")
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
 	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
+	Exit
 
 	;ODBC/SQL error when tring to view watch list, come back to this later
 	#Region -- Order Trakker Test 8 - Verify the watch list updates correctly
