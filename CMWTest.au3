@@ -1387,7 +1387,7 @@ Func TestTrakker()
 		ControlClick("Instance Folder", "Error: Path not found", "Button1", "primary")
 	EndIf
 	WinWait("Enter Values")
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", "{Tab}")
 	#EndRegion -- Order Trakker Test 7 - Print a truck routing report, verify the reports can be run and are correct
 	Exit
 
@@ -1951,13 +1951,13 @@ EndFunc   ;==>TestEbay
 
 _OpenWS(@AppDataDir & "\AutoIt\CMWTest.csv")
 WinActivate($g_wMain)
-ConsoleWrite(TestDashboard() & @CRLF)
+;ConsoleWrite(TestDashboard() & @CRLF)
 ;ConsoleWrite(TestTerminal() & @CRLF)
 ;ConsoleWrite(TestImaging() & @CRLF)
 ;ConsoleWrite(TestReports() & @CRLF)
-;ConsoleWrite(TestTrakker() & @CRLF)
+ConsoleWrite(TestTrakker() & @CRLF)
 ;ConsoleWrite(TestEbay() & @CRLF)
-ConsoleWrite(TestSettings() & @CRLF)
+;ConsoleWrite(TestSettings() & @CRLF)
 
 Exit 2
 
