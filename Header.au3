@@ -489,9 +489,9 @@ EndFunc   ;==>TermTextWait
 	be specified to store the saved screenshot.
 
 #comments-end
-Func CaptureScreen($hTitle = $g_wMain, $sName = Null, $fiSubDir = Null, $fiAltDir = Null)
+Func CaptureScreen($hTitle = $g_wMain, $sName = Null, $fiSubDir = Null, $fiAltDir = Null, $tSleep = 500)
 
-	Sleep(500)
+	Sleep($tSleep)
 
 	If Not FileExists(@AppDataDir & "\AutoIt\Screen Captures") Then
 		DirCreate(@AppDataDir & "\AutoIt\Screen Captures")
