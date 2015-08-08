@@ -1716,7 +1716,7 @@ Func TestReports()
 		For $j = 0 To $aiSizes[$i] - 1
 			ControlSend($g_wMain, "Launch Report", "TListBox1", "{Down}")
 			;Sleep(200)
-			CaptureScreen($g_wMain, "Report" & $i & "," & $j, "ReportsTest")
+			CaptureScreen($g_wMain, "Report" & $i & "," & $j, "ReportsTest", Null, -500)
 		Next
 		$k += 50
 	Next
@@ -1730,21 +1730,27 @@ Func TestReports()
 	WinWait("Enter Values")
 
 	WinMove("Enter Values", "", 0, 0, @DesktopWidth, @DesktopHeight)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 60)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber & "{Enter}")
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 190)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven & "{Enter}")
+	;Local $aiControlPos = ControlGetPos("Enter Values", "", "Internet Explorer_Server1")
+	;MouseClick("primary", 1, 150 + $aiControlPos[0], 60 + $aiControlPos[1])
+	MouseClick("primary", 1, 150, 90)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber)
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 310)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday & "{Enter}")
+	MouseClick("primary", 1, 150, 205)
+	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 190)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven)
+
+	MouseClick("primary", 1, 150, 315)
+	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 310)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday)
 
 	Opt("SendKeyDelay", 100)
 	MouseClick("primary", 150, 500)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_sUserName)
 	Opt("SendKeyDelay", 5)
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 340, 480)
+	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 340, 420)
+
 	Sleep(250)
 	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, @DesktopWidth - 160, 650)
 
