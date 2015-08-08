@@ -1731,17 +1731,17 @@ Func TestReports()
 
 	WinMove("Enter Values", "", 0, 0, @DesktopWidth, @DesktopHeight)
 
-	;Local $aiControlPos = ControlGetPos("Enter Values", "", "Internet Explorer_Server1")
-	;MouseClick("primary", 1, 150 + $aiControlPos[0], 60 + $aiControlPos[1])
-	MouseClick("primary", 1, 150, 90)
+
+	MouseClick("primary", 150, 90, 1)
+	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 90)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber)
 
-	MouseClick("primary", 1, 150, 205)
-	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 190)
+	MouseClick("primary", 150, 205, 1)
+	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 205)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven)
 
-	MouseClick("primary", 1, 150, 315)
-	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 310)
+	MouseClick("primary", 150, 315, 1)
+	;ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 315)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday)
 
 	Opt("SendKeyDelay", 100)
@@ -1752,7 +1752,7 @@ Func TestReports()
 	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 340, 420)
 
 	Sleep(250)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, @DesktopWidth - 160, 650)
+	MouseClick("primary", @DesktopWidth - 150, 610, 1)
 
 	WinWait("AdvancedPurchaseOrderReport")
 	WinActivate("AdvancedPurchaseOrderReport")
@@ -1769,16 +1769,15 @@ Func TestReports()
 	#Region -- Reports Test 3 - Test a few different reports -done
 
 	;Different Report 1
-	;ControlClick($g_wMain, "Launch Report", "TAdvOfficePager2", "primary", 1, 75, 35)
 	ControlSend($g_wMain, "Launch Report", "TListBox1", "{Down}")
 	ControlClick($g_wMain, "Launch Report", "TAdvGlowButton14", "primary")
 	WinWait("Enter Values")
 
 	WinMove("Enter Values", "", 0, 0, @DesktopWidth, @DesktopHeight)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 60)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber & "{Enter}")
+	MouseClick("primary", 150, 90, 1)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber)
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, @DesktopWidth - 160, 140)
+	MouseClick("primary", @DesktopWidth - 150, 160, 1)
 
 	WinWait("DailyAgeReceivable", "100%")
 	WinActivate("DailyAgeReceivable")
@@ -1798,20 +1797,20 @@ Func TestReports()
 	WinWait("Enter Values")
 
 	WinMove("Enter Values", "", 0, 0, @DesktopWidth, @DesktopHeight)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 90)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven & "{Enter}")
+	MouseClick("primary", 150, 115, 1)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven)
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 210)
-	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday & "{Enter}")
+	MouseClick("primary", 150, 225, 1)
+	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday)
 
 	Opt("SendKeyDelay", 100)
-	MouseClick("primary", 150, 390)
+	MouseClick("primary", 150, 390, 1)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber)
 	Opt("SendKeyDelay", 5)
 
 	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 340, 380)
 	Sleep(250)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, @DesktopWidth - 160, 550)
+	MouseClick("primary", @DesktopWidth - 150, 515, 1)
 
 	WinWait("Invoice Credit Report")
 	WinActivate("Invoice Credit Report")
@@ -1830,16 +1829,16 @@ Func TestReports()
 	WinWait("Enter Values")
 
 	WinMove("Enter Values", "", 0, 0, @DesktopWidth, @DesktopHeight)
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 65)
+	MouseClick("primary", 150, 90, 1)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $g_iYardNumber & "{Enter}")
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 190)
+	MouseClick("primary", 150, 205, 1)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateMinusSeven & "{Enter}")
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, 150, 310)
+	MouseClick("primary", 150, 315, 1)
 	ControlSend("Enter Values", "", "Internet Explorer_Server1", $tDateToday & "{Enter}")
 
-	ControlClick("Enter Values", "", "Internet Explorer_Server1", "primary", 1, @DesktopWidth - 160, 385)
+	MouseClick("primary", @DesktopWidth - 150, 385, 1)
 
 	WinWait("Invoices by Customer")
 	WinActivate("Invoices by Customer")
